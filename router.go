@@ -72,16 +72,26 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	route := r.triggerMatching(req)
 
-	if route != nil {
-		//req = setVars(req, match.Vars)
-		//req = setCurrentRoute(req, match.Route)
+	if route == nil {
+		r.notFoundHandler().ServeHTTP(w, req)
+		return
 	}
 
-	if route.handler == nil && r.NotFoundHandler == nil {
-		route.handler = http.NotFoundHandler()
+	req = setCurrentRoute(req, route)
+
+	if route.handler == nil {
+		route.handler = r.notFoundHandler()
 	}
 
 	route.handler.ServeHTTP(w, req)
+}
+
+func (r *Router) notFoundHandler() http.Handler {
+	if r.NotFoundHandler == nil {
+		return http.NotFoundHandler()
+	}
+
+	return r.NotFoundHandler
 }
 
 // cleanPath returns the canonical path for p, eliminating . and .. elements.
