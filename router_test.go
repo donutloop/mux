@@ -23,7 +23,7 @@ func TestHost(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		code, ok := testPath(test)
+		code, ok := testGET(test)
 
 		if !ok {
 			t.Errorf("Expected status code 200, Actucal status code %v", code)
@@ -31,12 +31,13 @@ func TestHost(t *testing.T) {
 	}
 }
 
-func testPath(pt PathTest) (int, bool) {
+func testGET(pt PathTest) (int, bool) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello World!"))
 	}
 	r := NewRouter()
-	r.Path(pt.path).HandlerFunc(handler)
+
+	r.Get(pt.path, handler)
 
 	req, _ := http.NewRequest("GET", "http://localhost"+pt.path, nil)
 	res := httptest.NewRecorder()

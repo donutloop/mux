@@ -1,11 +1,11 @@
 package mux
 
-// matcher types try to match a request.
 import (
 	"net/http"
 	"strings"
 )
 
+// Matcher types try to match a request.
 type Matcher interface {
 	Match(*http.Request) bool
 }
@@ -23,27 +23,6 @@ type MatcherFunc func(*http.Request) bool
 // Match returns the match for a given request.
 func (m MatcherFunc) Match(r *http.Request) bool {
 	return m(r)
-}
-
-// methodMatcher matches the request against HTTP methods.
-type methodMatcher map[string]struct{}
-
-func newMethodMatcher(methods ...string) methodMatcher {
-	methodMatcher := methodMatcher{}
-
-	for _, v := range methods {
-		methodMatcher[strings.ToUpper(v)] = struct{}{}
-	}
-
-	return methodMatcher
-}
-
-func (m methodMatcher) Match(r *http.Request) bool {
-	if _, found := m[r.Method]; found {
-		return true
-	}
-
-	return false
 }
 
 // schemeMatcher matches the request against URL schemes.

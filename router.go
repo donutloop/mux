@@ -7,7 +7,7 @@ import (
 
 // NewRouter returns a new router instance.
 func NewRouter() *Router {
-	return &Router{}
+	return &Router{routes: map[string][]*Route{}}
 }
 
 // Router registers routes to be matched and dispatches a handler.
@@ -26,7 +26,7 @@ type Router struct {
 	// Configurable Handler to be used when no route matches.
 	NotFoundHandler http.Handler
 	// Routes to be matched, in order.
-	routes []*Route
+	routes map[string][]*Route
 	// See Router.StrictSlash(). This defines the flag for new routes.
 	strictSlash bool
 	// See Router.SkipClean(). This defines the flag for new routes.
@@ -38,9 +38,11 @@ type Router struct {
 // Match matches registered routes against the request.
 func (r *Router) triggerMatching(req *http.Request) *Route {
 
-	for _, route := range r.routes {
-		if route := route.triggerMatching(req); route != nil {
-			return route
+	if routesForMethod, found := r.routes[req.Method]; found {
+		for _, route := range routesForMethod {
+			if route := route.triggerMatching(req); route != nil {
+				return route
+			}
 		}
 	}
 
@@ -110,54 +112,59 @@ func (r *Router) NewRoute() *Route {
 		skipClean:      r.skipClean,
 		useEncodedPath: r.useEncodedPath,
 	}
-	r.routes = append(r.routes, route)
+	return route
+}
+
+// RegisterRoute registers a new route
+func (r *Router) RegisterRoute(method string, route *Route) *Route {
+	r.routes[method] = append(r.routes[method], route)
 	return route
 }
 
 // Handle registers a new route with a matcher for the URL path.
 // See Route.Path() and Route.Handler().
-func (r *Router) Handle(path string, handler http.Handler) *Route {
-	return r.NewRoute().Path(path).Handler(handler)
+func (r *Router) Handle(method string, path string, handler http.Handler) *Route {
+	return r.RegisterRoute(method, r.NewRoute().Path(path).Handler(handler))
 }
 
 // HandleFunc registers a new route with a matcher for the URL path.
 // See Route.Path() and Route.HandlerFunc().
-func (r *Router) HandleFunc(path string, handler func(http.ResponseWriter, *http.Request)) *Route {
-	return r.NewRoute().Path(path).HandlerFunc(handler)
+func (r *Router) HandleFunc(method string, path string, HandlerFunc func(http.ResponseWriter, *http.Request)) *Route {
+	return r.RegisterRoute(method, r.NewRoute().Path(path).HandlerFunc(HandlerFunc))
 }
 
-// Headers registers a new route with a matcher for request header values.
-// See Route.Headers().
-func (r *Router) Headers(pairs ...string) *Route {
-	return r.NewRoute().Headers(pairs...)
+// Get registers a new get route for the URL path
+// See Route.Path() and Route.Handler()
+func (r *Router) Get(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
+	return r.RegisterRoute(http.MethodGet, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
-// MatcherFunc registers a new route with a custom matcher function.
-// See Route.MatcherFunc().
-func (r *Router) MatcherFunc(f MatcherFunc) *Route {
-	return r.NewRoute().MatcherFunc(f)
+// Put registers a new put route for the URL path
+// See Route.Path() and Route.Handler()
+func (r *Router) Put(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
+	return r.RegisterRoute(http.MethodPut, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
-// Methods registers a new route with a matcher for HTTP methods.
-// See Route.Methods().
-func (r *Router) Methods(methods ...string) *Route {
-	return r.NewRoute().Methods(methods...)
+// Post registers a new post route for the URL path
+// See Route.Path() and Route.Handler()
+func (r *Router) Post(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
+	return r.RegisterRoute(http.MethodPost, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
-// Path registers a new route with a matcher for the URL path.
-// See Route.Path().
-func (r *Router) Path(path string) *Route {
-	return r.NewRoute().Path(path)
+// Delete registers a new delete route for the URL path
+// See Route.Path() and Route.Handler()
+func (r *Router) Delete(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
+	return r.RegisterRoute(http.MethodDelete, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
-// Schemes registers a new route with a matcher for URL schemes.
-// See Route.Schemes().
-func (r *Router) Schemes(schemes ...string) *Route {
-	return r.NewRoute().Schemes(schemes...)
+// Options registers a new options route for the URL path
+// See Route.Path() and Route.Handler()
+func (r *Router) Options(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
+	return r.RegisterRoute(http.MethodOptions, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
-// BuildVarsFunc registers a new route with a custom function for modifying
-// route variables before building a URL.
-func (r *Router) BuildVarsFunc(f BuildVarsFunc) *Route {
-	return r.NewRoute().BuildVarsFunc(f)
+// Head registers a new  head route for the URL path
+// See Route.Path() and Route.Handler()
+func (r *Router) Head(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
+	return r.RegisterRoute(http.MethodHead, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }

@@ -115,13 +115,6 @@ func (r *Route) Path(path string) *Route {
 	return r
 }
 
-// Methods adds a matcher for HTTP methods.
-// It accepts a sequence of one or more methods to be matched, e.g.:
-// "GET", "POST", "PUT".
-func (r *Route) Methods(methods ...string) *Route {
-	return r.addMatcher(newMethodMatcher(methods...))
-}
-
 // Schemes adds a matcher for URL schemes.
 // It accepts a sequence of schemes to be matched, e.g.: "http", "https".
 func (r *Route) Schemes(schemes ...string) *Route {
