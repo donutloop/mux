@@ -3,7 +3,6 @@ package mux
 import (
 	"fmt"
 	"net/http"
-	"strings"
 )
 
 // Route stores information to match a request and build URLs.
@@ -120,26 +119,13 @@ func (r *Route) Path(path string) *Route {
 // It accepts a sequence of one or more methods to be matched, e.g.:
 // "GET", "POST", "PUT".
 func (r *Route) Methods(methods ...string) *Route {
-
-	matcher := methodMatcher{}
-
-	for _, v := range methods {
-		matcher[strings.ToUpper(v)] = struct{}{}
-	}
-
-	return r.addMatcher(matcher)
+	return r.addMatcher(newMethodMatcher(methods...))
 }
 
 // Schemes adds a matcher for URL schemes.
 // It accepts a sequence of schemes to be matched, e.g.: "http", "https".
 func (r *Route) Schemes(schemes ...string) *Route {
-	schemeMatcher := schemeMatcher{}
-
-	for _, v := range schemes {
-		schemeMatcher[v] = struct{}{}
-	}
-
-	return r.addMatcher(schemeMatcher)
+	return r.addMatcher(newSchemeMatcher(schemes...))
 }
 
 // Headers adds a matcher for request header values.

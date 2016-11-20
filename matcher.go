@@ -28,8 +28,17 @@ func (m MatcherFunc) Match(r *http.Request) bool {
 // methodMatcher matches the request against HTTP methods.
 type methodMatcher map[string]struct{}
 
-func (m methodMatcher) Match(r *http.Request) bool {
+func newMethodMatcher(methods ...string) methodMatcher {
+	methodMatcher := methodMatcher{}
 
+	for _, v := range methods {
+		methodMatcher[strings.ToUpper(v)] = struct{}{}
+	}
+
+	return methodMatcher
+}
+
+func (m methodMatcher) Match(r *http.Request) bool {
 	if _, found := m[r.Method]; found {
 		return true
 	}
@@ -40,8 +49,17 @@ func (m methodMatcher) Match(r *http.Request) bool {
 // schemeMatcher matches the request against URL schemes.
 type schemeMatcher map[string]struct{}
 
-func (m schemeMatcher) Match(r *http.Request) bool {
+func newSchemeMatcher(schemes ...string) schemeMatcher {
+	schemeMatcher := schemeMatcher{}
 
+	for _, v := range schemes {
+		schemeMatcher[strings.ToLower(v)] = struct{}{}
+	}
+
+	return schemeMatcher
+}
+
+func (m schemeMatcher) Match(r *http.Request) bool {
 	if _, found := m[r.URL.Scheme]; found {
 		return true
 	}
@@ -53,7 +71,6 @@ func (m schemeMatcher) Match(r *http.Request) bool {
 type pathMatcher string
 
 func (m pathMatcher) Match(r *http.Request) bool {
-
 	if strings.Compare(string(m), r.URL.Path) == 0 {
 		return true
 	}
