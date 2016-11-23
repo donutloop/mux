@@ -28,31 +28,31 @@ func TestPath(t *testing.T) {
 		},
 		{
 			title:      "(POST) Path route with single path",
-			path:       "/api/echo",
+			path:       "/api/",
 			method:     http.MethodPost,
 			statusCode: http.StatusOK,
 		},
 		{
 			title:      "(DELETE) Path route with single path",
-			path:       "/api/echo",
+			path:       "/api",
 			method:     http.MethodDelete,
 			statusCode: http.StatusOK,
 		},
 		{
 			title:      "(PUT) Path route with single path",
-			path:       "/api/echo",
+			path:       "/api",
 			method:     http.MethodPut,
 			statusCode: http.StatusOK,
 		},
 		{
 			title:      "(Head) Path route with single path",
-			path:       "/api/echo",
+			path:       "/api/",
 			method:     http.MethodHead,
 			statusCode: http.StatusOK,
 		},
 		{
 			title:      "(Options) Path route with single path",
-			path:       "/api/echo",
+			path:       "/api/",
 			method:     http.MethodOptions,
 			statusCode: http.StatusOK,
 		},
@@ -65,35 +65,35 @@ func TestPath(t *testing.T) {
 		},
 		{
 			title:      "(POST) Path route with single path",
-			path:       "/api/echo",
+			path:       "/api/",
 			method:     http.MethodPost,
 			statusCode: http.StatusOK,
 			kind:       "HandlerFunc",
 		},
 		{
 			title:      "(DELETE) Path route with single path",
-			path:       "/api/echo",
+			path:       "/api/",
 			method:     http.MethodDelete,
 			statusCode: http.StatusOK,
 			kind:       "HandlerFunc",
 		},
 		{
 			title:      "(PUT) Path route with single path",
-			path:       "/api/echo",
+			path:       "/api/",
 			method:     http.MethodPut,
 			statusCode: http.StatusOK,
 			kind:       "HandlerFunc",
 		},
 		{
 			title:      "(Head) Path route with single path",
-			path:       "/api/echo",
+			path:       "/api/",
 			method:     http.MethodHead,
 			statusCode: http.StatusOK,
 			kind:       "HandlerFunc",
 		},
 		{
 			title:      "(Options) Path route with single path",
-			path:       "/api/echo",
+			path:       "/api/",
 			method:     http.MethodOptions,
 			statusCode: http.StatusOK,
 			kind:       "HandlerFunc",
@@ -107,35 +107,35 @@ func TestPath(t *testing.T) {
 		},
 		{
 			title:      "(POST) Path route with single path",
-			path:       "/api/echo",
+			path:       "/api/",
 			method:     http.MethodPost,
 			statusCode: http.StatusOK,
 			kind:       "Handler",
 		},
 		{
 			title:      "(DELETE) Path route with single path",
-			path:       "/api/echo",
+			path:       "/api/",
 			method:     http.MethodDelete,
 			statusCode: http.StatusOK,
 			kind:       "Handler",
 		},
 		{
 			title:      "(PUT) Path route with single path",
-			path:       "/api/echo",
+			path:       "/api/",
 			method:     http.MethodPut,
 			statusCode: http.StatusOK,
 			kind:       "Handler",
 		},
 		{
 			title:      "(Head) Path route with single path",
-			path:       "/api/echo",
+			path:       "/api/",
 			method:     http.MethodHead,
 			statusCode: http.StatusOK,
 			kind:       "Handler",
 		},
 		{
 			title:      "(Options) Path route with single path",
-			path:       "/api/echo",
+			path:       "/api/",
 			method:     http.MethodOptions,
 			statusCode: http.StatusOK,
 			kind:       "Handler",
@@ -183,7 +183,7 @@ func testRoute(rt routeTest) (int, bool) {
 	case rt.method == http.MethodHead && rt.kind == "Handler":
 		fallthrough
 	case rt.method == http.MethodOptions && rt.kind == "Handler":
-		r.HandleFunc(rt.method, rt.path, http.HandlerFunc(handler))
+		r.Handle(rt.method, rt.path, http.HandlerFunc(handler))
 	case rt.method == http.MethodGet:
 		r.Get(rt.path, handler)
 	case rt.method == http.MethodPost:
