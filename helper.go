@@ -7,19 +7,18 @@ import (
 )
 
 // the count is not an even number.
-func checkPairs(pairs ...string) (int, error) {
+func isEvenPairs(pairs ...string) (int, error) {
 	length := len(pairs)
 	if length%2 != 0 {
-		return length, fmt.Errorf(
-			"mux: number of parameters must be multiple of 2, got %v", pairs)
+		return length, fmt.Errorf("mux: number of parameters must be multiple of 2, got %v", pairs)
 	}
 	return length, nil
 }
 
 // mapFromPairsToString converts variadic string parameters to a
 // string to string map.
-func mapFromPairsToString(pairs ...string) (map[string]string, error) {
-	length, err := checkPairs(pairs...)
+func mapFromPairsToString(iep func(pairs ...string) (int, error), pairs ...string) (map[string]string, error) {
+	length, err := iep(pairs...)
 	if err != nil {
 		return nil, err
 	}

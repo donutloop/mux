@@ -15,6 +15,7 @@ type routeTest struct {
 	method     string
 	statusCode int
 	kind       string
+	route      func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request))
 }
 
 func TestPath(t *testing.T) {
@@ -25,36 +26,54 @@ func TestPath(t *testing.T) {
 			path:       "/api/",
 			method:     http.MethodGet,
 			statusCode: http.StatusOK,
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.Get(path, handler)
+			},
 		},
 		{
 			title:      "(POST) Path route with single path",
 			path:       "/api/",
 			method:     http.MethodPost,
 			statusCode: http.StatusOK,
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.Post(path, handler)
+			},
 		},
 		{
 			title:      "(DELETE) Path route with single path",
 			path:       "/api",
 			method:     http.MethodDelete,
 			statusCode: http.StatusOK,
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.Delete(path, handler)
+			},
 		},
 		{
 			title:      "(PUT) Path route with single path",
 			path:       "/api",
 			method:     http.MethodPut,
 			statusCode: http.StatusOK,
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.Put(path, handler)
+			},
 		},
 		{
 			title:      "(Head) Path route with single path",
 			path:       "/api/",
 			method:     http.MethodHead,
 			statusCode: http.StatusOK,
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.Head(path, handler)
+			},
 		},
 		{
 			title:      "(Options) Path route with single path",
 			path:       "/api/",
 			method:     http.MethodOptions,
 			statusCode: http.StatusOK,
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.Options(path, handler)
+			},
 		},
 		{
 			title:      "(GET) Path route with single path",
@@ -62,6 +81,9 @@ func TestPath(t *testing.T) {
 			method:     http.MethodGet,
 			statusCode: http.StatusOK,
 			kind:       "HandlerFunc",
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.HandleFunc(method, path, handler)
+			},
 		},
 		{
 			title:      "(POST) Path route with single path",
@@ -69,6 +91,9 @@ func TestPath(t *testing.T) {
 			method:     http.MethodPost,
 			statusCode: http.StatusOK,
 			kind:       "HandlerFunc",
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.HandleFunc(method, path, handler)
+			},
 		},
 		{
 			title:      "(DELETE) Path route with single path",
@@ -76,6 +101,9 @@ func TestPath(t *testing.T) {
 			method:     http.MethodDelete,
 			statusCode: http.StatusOK,
 			kind:       "HandlerFunc",
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.HandleFunc(method, path, handler)
+			},
 		},
 		{
 			title:      "(PUT) Path route with single path",
@@ -83,6 +111,9 @@ func TestPath(t *testing.T) {
 			method:     http.MethodPut,
 			statusCode: http.StatusOK,
 			kind:       "HandlerFunc",
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.HandleFunc(method, path, handler)
+			},
 		},
 		{
 			title:      "(Head) Path route with single path",
@@ -90,6 +121,9 @@ func TestPath(t *testing.T) {
 			method:     http.MethodHead,
 			statusCode: http.StatusOK,
 			kind:       "HandlerFunc",
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.HandleFunc(method, path, handler)
+			},
 		},
 		{
 			title:      "(Options) Path route with single path",
@@ -97,6 +131,9 @@ func TestPath(t *testing.T) {
 			method:     http.MethodOptions,
 			statusCode: http.StatusOK,
 			kind:       "HandlerFunc",
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.HandleFunc(method, path, handler)
+			},
 		},
 		{
 			title:      "(GET) Path route with single path",
@@ -104,6 +141,9 @@ func TestPath(t *testing.T) {
 			method:     http.MethodGet,
 			statusCode: http.StatusOK,
 			kind:       "Handler",
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.Handle(method, path, http.HandlerFunc(handler))
+			},
 		},
 		{
 			title:      "(POST) Path route with single path",
@@ -111,6 +151,9 @@ func TestPath(t *testing.T) {
 			method:     http.MethodPost,
 			statusCode: http.StatusOK,
 			kind:       "Handler",
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.Handle(method, path, http.HandlerFunc(handler))
+			},
 		},
 		{
 			title:      "(DELETE) Path route with single path",
@@ -118,6 +161,9 @@ func TestPath(t *testing.T) {
 			method:     http.MethodDelete,
 			statusCode: http.StatusOK,
 			kind:       "Handler",
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.Handle(method, path, http.HandlerFunc(handler))
+			},
 		},
 		{
 			title:      "(PUT) Path route with single path",
@@ -125,6 +171,9 @@ func TestPath(t *testing.T) {
 			method:     http.MethodPut,
 			statusCode: http.StatusOK,
 			kind:       "Handler",
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.Handle(method, path, http.HandlerFunc(handler))
+			},
 		},
 		{
 			title:      "(Head) Path route with single path",
@@ -132,6 +181,9 @@ func TestPath(t *testing.T) {
 			method:     http.MethodHead,
 			statusCode: http.StatusOK,
 			kind:       "Handler",
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.Handle(method, path, http.HandlerFunc(handler))
+			},
 		},
 		{
 			title:      "(Options) Path route with single path",
@@ -139,11 +191,14 @@ func TestPath(t *testing.T) {
 			method:     http.MethodOptions,
 			statusCode: http.StatusOK,
 			kind:       "Handler",
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.Handle(method, path, http.HandlerFunc(handler))
+			},
 		},
 	}
 
 	for _, test := range tests {
-		t.Run(fmt.Sprintf("Test: %s path: %s method %s", test.title, test.path, test.method), func(t *testing.T) {
+		t.Run(fmt.Sprintf("Test: %s path: %s method %s kind: %s", test.title, test.path, test.method, test.kind), func(t *testing.T) {
 			code, ok := testRoute(test)
 
 			if !ok {
@@ -158,45 +213,7 @@ func testRoute(rt routeTest) (int, bool) {
 		w.Write([]byte("succesfully"))
 	}
 	r := NewRouter()
-
-	switch {
-	case rt.method == http.MethodGet && rt.kind == "HandlerFunc":
-		fallthrough
-	case rt.method == http.MethodPost && rt.kind == "HandlerFunc":
-		fallthrough
-	case rt.method == http.MethodDelete && rt.kind == "HandlerFunc":
-		fallthrough
-	case rt.method == http.MethodPut && rt.kind == "HandlerFunc":
-		fallthrough
-	case rt.method == http.MethodHead && rt.kind == "HandlerFunc":
-		fallthrough
-	case rt.method == http.MethodOptions && rt.kind == "HandlerFunc":
-		r.HandleFunc(rt.method, rt.path, handler)
-	case rt.method == http.MethodGet && rt.kind == "Handler":
-		fallthrough
-	case rt.method == http.MethodPost && rt.kind == "Handler":
-		fallthrough
-	case rt.method == http.MethodDelete && rt.kind == "Handler":
-		fallthrough
-	case rt.method == http.MethodPut && rt.kind == "Handler":
-		fallthrough
-	case rt.method == http.MethodHead && rt.kind == "Handler":
-		fallthrough
-	case rt.method == http.MethodOptions && rt.kind == "Handler":
-		r.Handle(rt.method, rt.path, http.HandlerFunc(handler))
-	case rt.method == http.MethodGet:
-		r.Get(rt.path, handler)
-	case rt.method == http.MethodPost:
-		r.Post(rt.path, handler)
-	case rt.method == http.MethodDelete:
-		r.Delete(rt.path, handler)
-	case rt.method == http.MethodPut:
-		r.Put(rt.path, handler)
-	case rt.method == http.MethodHead:
-		r.Head(rt.path, handler)
-	case rt.method == http.MethodOptions:
-		r.Options(rt.path, handler)
-	}
+	rt.route(r, rt.path, rt.method, handler)
 
 	req, _ := http.NewRequest(rt.method, "http://localhost"+rt.path, nil)
 	res := httptest.NewRecorder()

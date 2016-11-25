@@ -133,7 +133,7 @@ func (r *Route) Schemes(schemes ...string) *Route {
 func (r *Route) Headers(pairs ...string) *Route {
 	if r.err == nil {
 		var headers map[string]string
-		headers, r.err = mapFromPairsToString(pairs...)
+		headers, r.err = mapFromPairsToString(isEvenPairs, pairs...)
 		return r.addMatcher(headerMatcher(headers))
 	}
 	return r
@@ -158,7 +158,7 @@ func (r *Route) BuildVarsFunc(f BuildVarsFunc) *Route {
 // prepareVars converts the route variable pairs into a map. If the route has a
 // BuildVarsFunc, it is invoked.
 func (r *Route) prepareVars(pairs ...string) (map[string]string, error) {
-	m, err := mapFromPairsToString(pairs...)
+	m, err := mapFromPairsToString(isEvenPairs, pairs...)
 	if err != nil {
 		return nil, err
 	}
