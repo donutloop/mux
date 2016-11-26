@@ -65,7 +65,7 @@ func newMethodMatcher() methodMatcher {
 	return methodMatcher(methods)
 }
 
-// methods all possible methods
+// methods all possible standard methods
 var methods = map[string]struct{}{
 	http.MethodGet:     struct{}{},
 	http.MethodPost:    struct{}{},
