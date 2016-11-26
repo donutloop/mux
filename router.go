@@ -1,13 +1,17 @@
 package mux
 
 import (
+	"errors"
 	"net/http"
 	"path"
 )
 
 // NewRouter returns a new router instance.
 func NewRouter() *Router {
-	return &Router{routes: map[string][]*Route{}}
+	return &Router{
+		routes:        map[string][]*Route{},
+		methodMatcher: newMethodMatcher(),
+	}
 }
 
 // Router registers routes to be matched and dispatches a handler.
@@ -33,6 +37,8 @@ type Router struct {
 	skipClean bool
 	// see Router.UseEncodedPath(). This defines a flag for all routes.
 	useEncodedPath bool
+	// see methodMatcher.Match().
+	methodMatcher methodMatcher
 }
 
 // Match matches registered routes against the request.
@@ -127,6 +133,11 @@ func (r *Router) NewRoute() *Route {
 
 // RegisterRoute registers a new route
 func (r *Router) RegisterRoute(method string, route *Route) *Route {
+
+	if !r.methodMatcher.Match(method) {
+		route.err = errors.New("Method not matched")
+	}
+
 	r.routes[method] = append(r.routes[method], route)
 	return route
 }

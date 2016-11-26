@@ -56,3 +56,31 @@ func (m pathMatcher) Match(r *http.Request) bool {
 
 	return false
 }
+
+//methodMatcher matches the string against a method.
+type methodMatcher map[string]struct{}
+
+// newMatcher
+func newMethodMatcher() methodMatcher {
+	return methodMatcher(methods)
+}
+
+// methods all possible methods
+var methods = map[string]struct{}{
+	http.MethodGet:     struct{}{},
+	http.MethodPost:    struct{}{},
+	http.MethodPatch:   struct{}{},
+	http.MethodDelete:  struct{}{},
+	http.MethodHead:    struct{}{},
+	http.MethodPut:     struct{}{},
+	http.MethodOptions: struct{}{},
+}
+
+func (m methodMatcher) Match(method string) bool {
+
+	if _, found := m[method]; found {
+		return true
+	}
+
+	return false
+}
