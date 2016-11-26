@@ -189,3 +189,10 @@ func (r *Router) Options(path string, handlerFunc func(http.ResponseWriter, *htt
 func (r *Router) Head(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
 	return r.RegisterRoute(http.MethodHead, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
+
+// ListenAndServe listens on the TCP network address addr
+// and then calls Serve with handler to handle requests
+// on incoming connections.
+func (r *Router) ListenAndServe(port string) error {
+	return http.ListenAndServe(port, r)
+}
