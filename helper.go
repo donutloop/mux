@@ -15,9 +15,9 @@ func isEvenPairs(pairs ...string) (int, error) {
 	return length, nil
 }
 
-// mapFromPairsToString converts variadic string parameters to a
+// convertStringsToMap converts variadic string parameters to a
 // string to string map.
-func mapFromPairsToString(iep func(pairs ...string) (int, error), pairs ...string) (map[string]string, error) {
+func convertStringsToMap(iep func(pairs ...string) (int, error), pairs ...string) (map[string]string, error) {
 	length, err := iep(pairs...)
 	if err != nil {
 		return nil, err

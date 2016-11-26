@@ -32,28 +32,28 @@ func TestIsEvenPairs(t *testing.T) {
 	}
 }
 
-func TestMapFromPairsToString(t *testing.T) {
+func TestConvertStringsToMap(t *testing.T) {
 	isEvenPairs := func(pairs ...string) (int, error) {
 		return 2, nil
 	}
 
 	pairs := []string{"content-type", "application/json"}
 
-	m, _ := mapFromPairsToString(isEvenPairs, pairs...)
+	m, _ := convertStringsToMap(isEvenPairs, pairs...)
 
 	if value, ok := m["content-type"]; !ok || value != "application/json" {
 		t.Error("Unexpected pair")
 	}
 }
 
-func TestMapFromPairsToStringError(t *testing.T) {
+func TestConvertStringsToMapError(t *testing.T) {
 	isEvenPairs := func(pairs ...string) (int, error) {
 		return 3, errors.New("Something went wrong")
 	}
 
 	pairs := []string{}
 
-	if _, err := mapFromPairsToString(isEvenPairs, pairs...); err == nil {
+	if _, err := convertStringsToMap(isEvenPairs, pairs...); err == nil {
 		t.Error("Unexpected nil error")
 	}
 }
