@@ -147,6 +147,26 @@ func TestPath(t *testing.T) {
 			},
 		},
 		{
+			title:      "(GET) Path route with vars",
+			path:       "/api/user/32",
+			method:     http.MethodOptions,
+			statusCode: http.StatusOK,
+			kind:       "HandlerFunc",
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.HandleFunc(method, "/api/user/:number", handler)
+			},
+		},
+		{
+			title:      "(GET) Path route with vars",
+			path:       "/api/user/32/article/golang",
+			method:     http.MethodOptions,
+			statusCode: http.StatusOK,
+			kind:       "HandlerFunc",
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.HandleFunc(method, "/api/user/:number/article/:string", handler)
+			},
+		},
+		{
 			title:      "(GET) Path route with single path",
 			path:       "/api/",
 			method:     http.MethodGet,

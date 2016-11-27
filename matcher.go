@@ -69,10 +69,10 @@ Loop:
 	for {
 		switch {
 		case strings.Contains(path, ":number") == true:
-			path = strings.Replace(path, ":number", "([0-9])", -1)
+			path = strings.Replace(path, ":number", "([0-9]{1,})", -1)
 			continue
 		case strings.Contains(path, ":string") == true:
-			path = strings.Replace(path, ":string", "([a-zA-Z])", -1)
+			path = strings.Replace(path, ":string", "([a-zA-Z]{1,})", -1)
 			continue
 		default:
 
