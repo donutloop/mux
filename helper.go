@@ -4,6 +4,7 @@ package mux
 import (
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 // the count is not an even number.
@@ -60,4 +61,14 @@ func matchMapWithString(toCheck map[string]string, toMatch map[string][]string, 
 	}
 
 	return true
+}
+
+// containsRegexPath returns true if the path a regex path
+func containsRegex(path string) bool {
+	return strings.Contains(path, "#")
+}
+
+// containsRegexPath returns true if the path contains vars
+func containsVars(path string) bool {
+	return strings.Contains(path, ":")
 }

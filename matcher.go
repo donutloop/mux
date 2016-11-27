@@ -2,6 +2,7 @@ package mux
 
 import (
 	"net/http"
+	"regexp"
 	"strings"
 )
 
@@ -51,6 +52,42 @@ type pathMatcher string
 
 func (m pathMatcher) Match(r *http.Request) bool {
 	if strings.Compare(string(m), r.URL.Path) == 0 {
+		return true
+	}
+
+	return false
+}
+
+//pathWithVarsMatcher matches the request against a URL path.
+type pathWithVarsMatcher struct {
+	regex *regexp.Regexp
+}
+
+func newPathWithVarsMatcher(path string) pathWithVarsMatcher {
+
+Loop:
+	for {
+		switch {
+		case strings.Contains(path, ":number") == true:
+			path = strings.Replace(path, ":number", "([0-9])", -1)
+			continue
+		case strings.Contains(path, ":string") == true:
+			path = strings.Replace(path, ":string", "([a-zA-Z])", -1)
+			continue
+		default:
+
+			break Loop
+		}
+	}
+
+	return pathWithVarsMatcher{
+		regex: regexp.MustCompile(`^` + path + `$`),
+	}
+}
+
+func (m pathWithVarsMatcher) Match(r *http.Request) bool {
+
+	if m.regex.MatchString(r.URL.Path) {
 		return true
 	}
 

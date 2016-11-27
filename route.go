@@ -132,8 +132,18 @@ func (r *Route) Path(path string) *Route {
 		r.err = newBadRouteError(r, fmt.Sprintf("route already has path can't set a new path %v", path))
 	}
 
+	var matcher Matcher
+	switch {
+	case containsRegex(path):
+		//Todo implement matcher for path regex
+	case containsVars(path):
+		matcher = newPathWithVarsMatcher(path)
+	default:
+		matcher = pathMatcher(path)
+	}
+
 	r.path = path
-	r.addMatcher(pathMatcher(path))
+	r.addMatcher(matcher)
 
 	return r
 }
