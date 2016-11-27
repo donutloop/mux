@@ -26,19 +26,19 @@ type Route struct {
 }
 
 //BadRouteError creates error for a bad route
-type BadRouteError struct {
+type badRouteError struct {
 	r *Route
 	s string
 }
 
-func newBadRouteError(r *Route, s string) *BadRouteError {
-	return &BadRouteError{
+func newBadRouteError(r *Route, s string) *badRouteError {
+	return &badRouteError{
 		r: r,
 		s: s,
 	}
 }
 
-func (bre BadRouteError) Error() string {
+func (bre badRouteError) Error() string {
 	return fmt.Sprintf("Route -> Method: %s Path: %s Error: %s", bre.r.methodName, bre.r.path, bre.s)
 }
 

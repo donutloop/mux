@@ -2,6 +2,7 @@ package mux
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -231,4 +232,21 @@ func testRoute(rt routeTest) (int, bool) {
 	}
 
 	return res.Code, true
+}
+
+func TestHasErrors(t *testing.T) {
+	routeA := &Route{
+		err: errors.New("Bad route"),
+	}
+	routeB := &Route{
+		err: errors.New("Bad method"),
+	}
+
+	r := &Router{}
+	r.routes = map[string][]*Route{}
+	r.routes[http.MethodGet] = append(r.routes[http.MethodGet], routeA, routeB)
+
+	if ok, errors := r.HasErrors(); !ok || 0 == len(errors) {
+		t.Errorf("Has no errros (Status is %v, How many errors ? %v)", ok, len(errors))
+	}
 }
