@@ -139,6 +139,8 @@ func (r *Router) RegisterRoute(method string, route *Route) *Route {
 		route.err = validator.Validate(method)
 	}
 
+	route.methodName = method
+
 	r.routes[method] = append(r.routes[method], route)
 	return route
 }
@@ -146,49 +148,49 @@ func (r *Router) RegisterRoute(method string, route *Route) *Route {
 // Handle registers a new route with a matcher for the URL path.
 // See Route.Path() and Route.Handler().
 func (r *Router) Handle(method string, path string, handler http.Handler) *Route {
-	return r.RegisterRoute(method, r.NewRoute().MethodName(method).Path(path).Handler(handler))
+	return r.RegisterRoute(method, r.NewRoute().Path(path).Handler(handler))
 }
 
 // HandleFunc registers a new route with a matcher for the URL path.
 // See Route.Path() and Route.HandlerFunc().
 func (r *Router) HandleFunc(method string, path string, HandlerFunc func(http.ResponseWriter, *http.Request)) *Route {
-	return r.RegisterRoute(method, r.NewRoute().MethodName(method).Path(path).HandlerFunc(HandlerFunc))
+	return r.RegisterRoute(method, r.NewRoute().Path(path).HandlerFunc(HandlerFunc))
 }
 
 // Get registers a new get route for the URL path
 // See Route.Path() and Route.Handler()
 func (r *Router) Get(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
-	return r.RegisterRoute(http.MethodGet, r.NewRoute().MethodName(http.MethodGet).Path(path).HandlerFunc(handlerFunc))
+	return r.RegisterRoute(http.MethodGet, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
 // Put registers a new put route for the URL path
 // See Route.Path() and Route.Handler()
 func (r *Router) Put(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
-	return r.RegisterRoute(http.MethodPut, r.NewRoute().MethodName(http.MethodPut).Path(path).HandlerFunc(handlerFunc))
+	return r.RegisterRoute(http.MethodPut, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
 // Post registers a new post route for the URL path
 // See Route.Path() and Route.Handler()
 func (r *Router) Post(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
-	return r.RegisterRoute(http.MethodPost, r.NewRoute().MethodName(http.MethodPost).Path(path).HandlerFunc(handlerFunc))
+	return r.RegisterRoute(http.MethodPost, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
 // Delete registers a new delete route for the URL path
 // See Route.Path() and Route.Handler()
 func (r *Router) Delete(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
-	return r.RegisterRoute(http.MethodDelete, r.NewRoute().MethodName(http.MethodDelete).Path(path).HandlerFunc(handlerFunc))
+	return r.RegisterRoute(http.MethodDelete, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
 // Options registers a new options route for the URL path
 // See Route.Path() and Route.Handler()
 func (r *Router) Options(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
-	return r.RegisterRoute(http.MethodOptions, r.NewRoute().MethodName(http.MethodOptions).Path(path).HandlerFunc(handlerFunc))
+	return r.RegisterRoute(http.MethodOptions, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
 // Head registers a new  head route for the URL path
 // See Route.Path() and Route.Handler()
 func (r *Router) Head(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
-	return r.RegisterRoute(http.MethodHead, r.NewRoute().MethodName(http.MethodHead).Path(path).HandlerFunc(handlerFunc))
+	return r.RegisterRoute(http.MethodHead, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
 // ListenAndServe listens on the TCP network address addr

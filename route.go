@@ -117,13 +117,6 @@ func (r *Route) Name(name string) *Route {
 	return r
 }
 
-// MethodName sets the methodName for the route, used to build erros.
-// If the name was registered already it will be overwritten.
-func (r *Route) MethodName(name string) *Route {
-	r.methodName = name
-	return r
-}
-
 // GetName returns the name for the route, if any.
 func (r *Route) GetName() string {
 	return r.name
