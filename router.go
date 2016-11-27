@@ -131,10 +131,7 @@ func cleanPath(p string) string {
 // NewRoute registers an empty route.
 func (r *Router) NewRoute() *Route {
 	route := &Route{
-		router:         r,
-		strictSlash:    r.strictSlash,
-		skipClean:      r.skipClean,
-		useEncodedPath: r.useEncodedPath,
+		router: r,
 	}
 	return route
 }
