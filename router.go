@@ -3,6 +3,7 @@ package mux
 import (
 	"net/http"
 	"path"
+	"strings"
 )
 
 // NewRouter returns a new router instance.
@@ -32,14 +33,16 @@ type Router struct {
 	NotFoundHandler http.Handler
 	// Routes to be matched, in order.
 	routes map[string][]*Route
-	// See Router.StrictSlash(). This defines the flag for new routes.
-	strictSlash bool
-	// See Router.SkipClean(). This defines the flag for new routes.
-	skipClean bool
-	// see Router.UseEncodedPath(). This defines a flag for all routes.
-	useEncodedPath bool
+	// This defines the flag for new routes.
+	StrictSlash bool
+	// This defines the flag for new routes.
+	SkipClean bool
+	// This defines a flag for all routes.
+	UseEncodedPath bool
 	// see Validator
 	Validatoren map[string]Validator
+	// This defines a flag for all routes.
+	CaseSensitiveURL bool
 }
 
 // Match matches registered routes against the request.
@@ -61,11 +64,11 @@ func (r *Router) triggerMatching(req *http.Request) *Route {
 // When there is a match, the route variables can be retrieved calling
 // mux.Vars(request).
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	if !r.skipClean {
+	if !r.SkipClean {
 
 		path := req.URL.Path
 
-		if r.useEncodedPath {
+		if r.UseEncodedPath {
 			path = req.URL.EscapedPath()
 		}
 
@@ -75,6 +78,10 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			w.WriteHeader(http.StatusMovedPermanently)
 			return
 		}
+	}
+
+	if !r.CaseSensitiveURL {
+		req.URL.Path = strings.ToLower(req.URL.Path)
 	}
 
 	route := r.triggerMatching(req)

@@ -11,14 +11,6 @@ type Route struct {
 	handler http.Handler
 	// List of matchers.
 	matchers []Matcher
-	// If true, when the path pattern is "/path/", accessing "/path" will
-	// redirect to the former and vice versa.
-	strictSlash bool
-	// If true, when the path pattern is "/path//to", accessing "/path//to"
-	// will not redirect
-	skipClean bool
-	// If true, "/path/foo%2Fbar/to" will match the path "/path/{var}/to"
-	useEncodedPath bool
 	// The name used to build URLs.
 	name string
 	// Error resulted from building a route.
@@ -48,10 +40,6 @@ func newBadRouteError(r *Route, s string) *BadRouteError {
 
 func (bre BadRouteError) Error() string {
 	return fmt.Sprintf("Route -> Method: %s Path: %s Error: %s", bre.r.methodName, bre.r.path, bre.s)
-}
-
-func (r *Route) SkipClean() bool {
-	return r.skipClean
 }
 
 // Match matches the route against the request.
