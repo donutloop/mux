@@ -23,10 +23,31 @@ type Route struct {
 	name string
 	// Error resulted from building a route.
 	err error
+	// MethodName used to build proper error messages
+	methodName string
+	// path used to build proper error messages
+	path string
 
 	router *Router
 
 	buildVarsFunc BuildVarsFunc
+}
+
+//BadRouteError creates error for a bad route
+type BadRouteError struct {
+	r *Route
+	s string
+}
+
+func newBadRouteError(r *Route, s string) *BadRouteError {
+	return &BadRouteError{
+		r: r,
+		s: s,
+	}
+}
+
+func (bre BadRouteError) Error() string {
+	return fmt.Sprintf("Route -> Method: %s Path: %s Error: %s", bre.r.methodName, bre.r.path, bre.s)
 }
 
 func (r *Route) SkipClean() bool {
@@ -54,6 +75,15 @@ func (r *Route) GetError() error {
 	return r.err
 }
 
+// HasError check if an error exists.
+func (r *Route) HasError() bool {
+	if r.err == nil {
+		return false
+	}
+
+	return true
+}
+
 // Handler sets a handler for the route.
 func (r *Route) Handler(handler http.Handler) *Route {
 	if r.err == nil {
@@ -73,11 +103,10 @@ func (r *Route) GetHandler() http.Handler {
 }
 
 // Name sets the name for the route, used to build URLs.
-// If the name was registered already it will be overwritten.
 func (r *Route) Name(name string) *Route {
 
 	if r.name != "" {
-		r.err = fmt.Errorf("mux: route already has name %q, can't set %q", r.name, name)
+		r.err = newBadRouteError(r, fmt.Sprintf("route already has name %q, can't set %q", r.name, name))
 		return r
 	}
 
@@ -85,6 +114,13 @@ func (r *Route) Name(name string) *Route {
 		r.name = name
 	}
 
+	return r
+}
+
+// MethodName sets the methodName for the route, used to build erros.
+// If the name was registered already it will be overwritten.
+func (r *Route) MethodName(name string) *Route {
+	r.methodName = name
 	return r
 }
 
@@ -110,8 +146,14 @@ func (r *Route) addMatcher(m Matcher) *Route {
 //     r.Path("/billing/").Handler(BillingHandler)
 //
 func (r *Route) Path(path string) *Route {
-	matcher := pathMatcher(path)
-	r.addMatcher(matcher)
+
+	if r.path != "" {
+		r.err = newBadRouteError(r, fmt.Sprintf("route already has path can't set a new path %v", path))
+	}
+
+	r.path = path
+	r.addMatcher(pathMatcher(path))
+
 	return r
 }
 
