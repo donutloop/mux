@@ -136,7 +136,8 @@ func (r *Router) NewRoute() *Route {
 func (r *Router) RegisterRoute(method string, route *Route) *Route {
 
 	if validator, found := r.Validatoren["method"]; found {
-		route.err = validator.Validate(method)
+		err := validator.Validate(method)
+		route.err = newBadRouteError(route, err.Error())
 	}
 
 	route.methodName = method
