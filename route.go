@@ -5,8 +5,15 @@ import (
 	"net/http"
 )
 
+const (
+	kindNormalPath = iota
+	kindVarsPath
+	kindRegexPath
+)
+
 // Route stores information to match a request and build URLs.
 type Route struct {
+	kind int
 	// Request handler for the route.
 	handler http.Handler
 	// List of matchers.
@@ -136,10 +143,13 @@ func (r *Route) Path(path string) *Route {
 	switch {
 	case containsRegex(path):
 		//Todo implement matcher for path regex
+		r.kind = kindRegexPath
 	case containsVars(path):
 		matcher = newPathWithVarsMatcher(path)
+		r.kind = kindVarsPath
 	default:
 		matcher = pathMatcher(path)
+		r.kind = kindNormalPath
 	}
 
 	r.path = path

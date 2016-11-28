@@ -273,10 +273,34 @@ func TestHasErrors(t *testing.T) {
 	}
 
 	r := &Router{}
-	r.routes = map[string][]*Route{}
+	r.routes = map[string]routes{}
 	r.routes[http.MethodGet] = append(r.routes[http.MethodGet], routeA, routeB)
 
 	if ok, errors := r.HasErrors(); !ok || 0 == len(errors) {
 		t.Errorf("Has no errros (Status is %v, How many errors ? %v)", ok, len(errors))
+	}
+}
+
+func TestSortsRoutes(t *testing.T) {
+
+	kinds := []int{1, 3, 2, 3, 2, 3, 3, 2, 1}
+
+	r := &Router{}
+	r.routes = map[string]routes{}
+
+	for _, v := range kinds {
+		route := &Route{
+			kind: v,
+		}
+
+		r.routes[http.MethodGet] = append(r.routes[http.MethodGet], route)
+	}
+
+	r.SortRoutes()
+
+	routes := r.routes[http.MethodGet]
+
+	if routes[0].kind != 1 || routes[len(routes)-1].kind != 3 || routes[2].kind != 2 {
+		t.Error("Sort of routes is bad")
 	}
 }

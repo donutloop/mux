@@ -3,13 +3,14 @@ package mux
 import (
 	"net/http"
 	"path"
+	"sort"
 	"strings"
 )
 
 // NewRouter returns a new router instance.
 func NewRouter() *Router {
 	return &Router{
-		routes: map[string][]*Route{},
+		routes: map[string]routes{},
 		Validatoren: map[string]Validator{
 			"method": newMethodValidator(),
 		},
@@ -32,7 +33,7 @@ type Router struct {
 	// Configurable Handler to be used when no route matches.
 	NotFoundHandler http.Handler
 	// Routes to be matched, in order.
-	routes map[string][]*Route
+	routes map[string]routes
 	// This defines the flag for new routes.
 	StrictSlash bool
 	// This defines the flag for new routes.
@@ -204,8 +205,14 @@ func (r *Router) Head(path string, handlerFunc func(http.ResponseWriter, *http.R
 // ListenAndServe listens on the TCP network address addr
 // and then calls Serve with handler to handle requests
 // on incoming connections.
-func (r *Router) ListenAndServe(port string) error {
-	return http.ListenAndServe(port, r)
+func (r *Router) ListenAndServe(port string) (errs []error) {
+	var ok bool
+	if ok, errs = r.HasErrors(); ok {
+		return errs
+	}
+	r.SortRoutes()
+	errs = append(errs, http.ListenAndServe(port, r))
+	return
 }
 
 // HasErrors checks if any errors exists
@@ -223,4 +230,26 @@ func (r *Router) HasErrors() (bool, []error) {
 	}
 
 	return hasError, errors
+}
+
+//SortRoutes sorts the Routes (Rank: RegexPath, PathWithVars, PathNormal)
+func (r *Router) SortRoutes() {
+	for _, v := range r.routes {
+		sort.Sort(v)
+	}
+}
+
+// implements the sort interface (len, swap, less)
+// see sort.Sort (Standard Library)
+type routes []*Route
+
+func (r routes) Len() int {
+	return len(r)
+}
+
+func (r routes) Swap(i, j int) {
+	r[i], r[j] = r[j], r[i]
+}
+func (r routes) Less(i, j int) bool {
+	return r[i].kind < r[j].kind
 }
