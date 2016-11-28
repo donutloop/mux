@@ -6,9 +6,16 @@ import (
 	"strings"
 )
 
+const (
+	rankAny = iota
+	rankPath
+	rankScheme
+)
+
 // Matcher types try to match a request.
 type Matcher interface {
 	Match(*http.Request) bool
+	rank() int
 }
 
 // headerMatcher matches the request against header values.
@@ -18,12 +25,20 @@ func (m headerMatcher) Match(r *http.Request) bool {
 	return matchMapWithString(m, r.Header, true)
 }
 
+func (m headerMatcher) rank() int {
+	return rankAny
+}
+
 // MatcherFunc is the function signature used by custom matchers.
 type MatcherFunc func(*http.Request) bool
 
 // Match returns the match for a given request.
 func (m MatcherFunc) Match(r *http.Request) bool {
 	return m(r)
+}
+
+func (m MatcherFunc) rank() int {
+	return rankAny
 }
 
 // schemeMatcher matches the request against URL schemes.
@@ -47,6 +62,10 @@ func (m schemeMatcher) Match(r *http.Request) bool {
 	return false
 }
 
+func (m schemeMatcher) rank() int {
+	return rankScheme
+}
+
 //pathMatcher matches the request against a URL path.
 type pathMatcher string
 
@@ -56,6 +75,10 @@ func (m pathMatcher) Match(r *http.Request) bool {
 	}
 
 	return false
+}
+
+func (m pathMatcher) rank() int {
+	return rankPath
 }
 
 //pathWithVarsMatcher matches the request against a URL path.
@@ -83,6 +106,10 @@ Loop:
 	return pathWithVarsMatcher{
 		regex: regexp.MustCompile(`^` + path + `$`),
 	}
+}
+
+func (m pathWithVarsMatcher) rank() int {
+	return rankPath
 }
 
 func (m pathWithVarsMatcher) Match(r *http.Request) bool {
@@ -113,4 +140,8 @@ func (m pathRegexMatcher) Match(r *http.Request) bool {
 	}
 
 	return false
+}
+
+func (m pathRegexMatcher) rank() int {
+	return rankPath
 }

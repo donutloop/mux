@@ -133,6 +133,7 @@ func cleanPath(p string) string {
 func (r *Router) NewRoute() *Route {
 	route := &Route{
 		router: r,
+		ms:     matchers([]Matcher{}),
 	}
 	return route
 }
@@ -235,6 +236,9 @@ func (r *Router) HasErrors() (bool, []error) {
 //SortRoutes sorts the Routes (Rank: RegexPath, PathWithVars, PathNormal)
 func (r *Router) SortRoutes() {
 	for _, v := range r.routes {
+		for _, vv := range v {
+			sort.Sort(vv.ms)
+		}
 		sort.Sort(v)
 	}
 }

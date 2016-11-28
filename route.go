@@ -18,7 +18,7 @@ type Route struct {
 	// Request handler for the route.
 	handler http.Handler
 	// List of matchers.
-	matchers []Matcher
+	ms matchers
 	// The name used to build URLs.
 	name string
 	// Error resulted from building a route.
@@ -57,7 +57,7 @@ func (r *Route) triggerMatching(req *http.Request) *Route {
 	}
 
 	// Match everything.
-	for _, m := range r.matchers {
+	for _, m := range r.ms {
 		if matched := m.Match(req); !matched {
 			return nil
 		}
@@ -121,7 +121,7 @@ func (r *Route) GetName() string {
 // addMatcher adds a matcher to the route.
 func (r *Route) addMatcher(m Matcher) *Route {
 	if r.err == nil {
-		r.matchers = append(r.matchers, m)
+		r.ms = append(r.ms, m)
 	}
 	return r
 }
@@ -214,4 +214,20 @@ func (r *Route) buildVars(m map[string]string) map[string]string {
 		m = r.buildVarsFunc(m)
 	}
 	return m
+}
+
+// implements the sort interface (len, swap, less)
+// see sort.Sort (Standard Library)
+type matchers []Matcher
+
+func (m matchers) Len() int {
+	return len(m)
+}
+
+func (m matchers) Swap(i, j int) {
+	m[i], m[j] = m[j], m[i]
+}
+
+func (m matchers) Less(i, j int) bool {
+	return m[i].rank() < m[j].rank()
 }
