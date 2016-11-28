@@ -93,3 +93,24 @@ func (m pathWithVarsMatcher) Match(r *http.Request) bool {
 
 	return false
 }
+
+//pathWithVarsMatcher matches the request against a URL path.
+type pathRegexMatcher struct {
+	regex *regexp.Regexp
+}
+
+func newPathRegexMatcher(path string) pathRegexMatcher {
+	path = strings.Replace(path, "#", "", -1)
+	return pathRegexMatcher{
+		regex: regexp.MustCompile(`^` + path + `$`),
+	}
+}
+
+func (m pathRegexMatcher) Match(r *http.Request) bool {
+
+	if m.regex.MatchString(r.URL.Path) {
+		return true
+	}
+
+	return false
+}

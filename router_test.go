@@ -167,6 +167,16 @@ func TestPath(t *testing.T) {
 			},
 		},
 		{
+			title:      "(GET) Path route with vars",
+			path:       "/api/user/3",
+			method:     http.MethodOptions,
+			statusCode: http.StatusOK,
+			kind:       "HandlerFunc",
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.HandleFunc(method, "/api/user/#([0-9]{1,})", handler)
+			},
+		},
+		{
 			title:      "(GET) Path route with single path",
 			path:       "/api/",
 			method:     http.MethodGet,

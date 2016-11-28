@@ -13,6 +13,7 @@ const (
 
 // Route stores information to match a request and build URLs.
 type Route struct {
+	// kind of route (regex, vars or normal)
 	kind int
 	// Request handler for the route.
 	handler http.Handler
@@ -142,7 +143,7 @@ func (r *Route) Path(path string) *Route {
 	var matcher Matcher
 	switch {
 	case containsRegex(path):
-		//Todo implement matcher for path regex
+		matcher = newPathRegexMatcher(path)
 		r.kind = kindRegexPath
 	case containsVars(path):
 		matcher = newPathWithVarsMatcher(path)
