@@ -8,7 +8,7 @@ import (
 
 func TestBadMethod(t *testing.T) {
 	err := newBadMethodError("GGET")
-	if err.Error() == "Method not vaild" {
+	if !strings.Contains(err.Error(), "Method not vaild") {
 		t.Errorf("Error message is bad (%s)", err.Error())
 	}
 }
