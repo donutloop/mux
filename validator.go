@@ -10,10 +10,10 @@ type Validator interface {
 	Validate(string) error
 }
 
-//MethodValidator matches the string against a method.
+//MethodValidator validates the string against a method.
 type MethodValidator map[string]struct{}
 
-// newMatcher
+// newMethodValidator returns default method validator
 func newMethodValidator() MethodValidator {
 	return MethodValidator(methods)
 }

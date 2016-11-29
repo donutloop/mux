@@ -274,6 +274,61 @@ func testRoute(rt routeTest) (int, bool) {
 	return res.Code, true
 }
 
+func TestRouteNotfound(t *testing.T) {
+
+	var methods = []string{
+		http.MethodGet,
+		http.MethodPost,
+		http.MethodPatch,
+		http.MethodDelete,
+		http.MethodHead,
+		http.MethodPut,
+		http.MethodOptions,
+		http.MethodConnect,
+	}
+
+	for _, method := range methods {
+		t.Run(fmt.Sprintf("Method: %s", method), func(t *testing.T) {
+			r := NewRouter()
+			req, _ := http.NewRequest(method, "http://localhost/echo", nil)
+			res := httptest.NewRecorder()
+			r.ServeHTTP(res, req)
+
+			if res.Code != 404 {
+				t.Errorf("Unexpected status code (%d)", res.Code)
+			}
+		})
+	}
+}
+
+func TestRouteWithoutHandler(t *testing.T) {
+
+	var methods = []string{
+		http.MethodGet,
+		http.MethodPost,
+		http.MethodPatch,
+		http.MethodDelete,
+		http.MethodHead,
+		http.MethodPut,
+		http.MethodOptions,
+		http.MethodConnect,
+	}
+
+	for _, method := range methods {
+		t.Run(fmt.Sprintf("Method: %s", method), func(t *testing.T) {
+			r := NewRouter()
+			r.RegisterRoute(method, r.NewRoute().Path("/echo"))
+			req, _ := http.NewRequest(method, "http://localhost/echo", nil)
+			res := httptest.NewRecorder()
+			r.ServeHTTP(res, req)
+
+			if res.Code != 404 {
+				t.Errorf("Unexpected status code (%d)", res.Code)
+			}
+		})
+	}
+}
+
 func TestHasErrors(t *testing.T) {
 	routeA := &Route{
 		err: errors.New("Bad route"),
