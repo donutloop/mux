@@ -19,9 +19,16 @@ func newMethodValidator() MethodValidator {
 }
 
 //BadMethodError creates error for bad method
-type BadMethodError string
+type badMethodError struct {
+	s string
+}
 
-func (bme BadMethodError) Error() string { return fmt.Sprintf("Method not vaild (%s)", bme) }
+func (bme *badMethodError) Error() string { return fmt.Sprintf("Method not vaild (%s)", bme.s) }
+
+// newBadMethodError returns an error that formats as the given text.
+func newBadMethodError(text string) error {
+	return &badMethodError{text}
+}
 
 // methods all possible standard methods
 var methods = map[string]struct{}{
@@ -38,7 +45,7 @@ var methods = map[string]struct{}{
 func (m MethodValidator) Validate(method string) error {
 
 	if _, found := m[method]; !found {
-		return BadMethodError(method)
+		return newBadMethodError(method)
 	}
 
 	return nil
