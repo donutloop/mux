@@ -31,7 +31,7 @@ func TestSortMatchers(t *testing.T) {
 	ms = append(ms, newSchemeMatcher("https"), pathMatcher("/api/"), mf)
 	sort.Sort(ms)
 
-	if ms[0].rank() != 0 || ms[1].rank() != 1 || ms[2].rank() != 2 {
-		t.Errorf("Unexpected ranking (Index 0: %d, Index 1: %d, Index 2: %d)", ms[0].rank(), ms[1].rank(), ms[2].rank())
+	if ms[0].Rank() != 0 || ms[1].Rank() != 1 || ms[2].Rank() != 2 {
+		t.Errorf("Unexpected ranking (Index 0: %d, Index 1: %d, Index 2: %d)", ms[0].Rank(), ms[1].Rank(), ms[2].Rank())
 	}
 }

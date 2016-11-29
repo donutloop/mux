@@ -7,7 +7,7 @@ import (
 
 //Validator validates the incomming value against a valid value/s
 type Validator interface {
-	Validate(string) error
+	Validate(*Route) error
 }
 
 //MethodValidator validates the string against a method.
@@ -42,11 +42,41 @@ var methods = map[string]struct{}{
 	http.MethodConnect: struct{}{},
 }
 
-func (m MethodValidator) Validate(method string) error {
+func (v MethodValidator) Validate(r *Route) error {
 
-	if _, found := m[method]; !found {
-		return newBadMethodError(method)
+	if _, found := v[r.methodName]; !found {
+		return newBadMethodError(r.methodName)
 	}
 
 	return nil
+}
+
+//pathMatcherValidator validates the string against a method.
+type pathMatcherValidator struct{}
+
+func newPathMatcherValidator() pathMatcherValidator {
+	return pathMatcherValidator{}
+}
+
+func (v pathMatcherValidator) Validate(r *Route) error {
+
+	for _, m := range r.ms {
+		if m.Rank() == rankPath {
+			return nil
+		}
+	}
+
+	return newMissingPathError()
+}
+
+//MissingPathError creates error for bad method
+type missingPathError struct {
+	s string
+}
+
+func (bme *missingPathError) Error() string { return fmt.Sprint("Path matcher is missing") }
+
+// newMissingPathErrorreturns an error that formats as the given text.
+func newMissingPathError() error {
+	return &missingPathError{}
 }

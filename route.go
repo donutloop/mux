@@ -56,10 +56,6 @@ func (r *Route) triggerMatching(req *http.Request) *Route {
 		return nil
 	}
 
-	if 0 == len(r.ms) {
-		return nil
-	}
-
 	// Match everything.
 	for _, m := range r.ms {
 		if matched := m.Match(req); !matched {
@@ -233,5 +229,5 @@ func (m matchers) Swap(i, j int) {
 }
 
 func (m matchers) Less(i, j int) bool {
-	return m[i].rank() < m[j].rank()
+	return m[i].Rank() < m[j].Rank()
 }

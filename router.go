@@ -13,6 +13,7 @@ func NewRouter() *Router {
 		routes: map[string]routes{},
 		Validatoren: map[string]Validator{
 			"method": newMethodValidator(),
+			"path":   newPathMatcherValidator(),
 		},
 	}
 }
@@ -141,15 +142,19 @@ func (r *Router) NewRoute() *Route {
 // RegisterRoute registers a new route
 func (r *Router) RegisterRoute(method string, route *Route) *Route {
 
-	if validator, found := r.Validatoren["method"]; found {
-		err := validator.Validate(method)
+	route.methodName = method
 
-		if err != nil {
-			route.err = newBadRouteError(route, err.Error())
+	for _, validatorKey := range []string{"method", "path"} {
+		if validator, found := r.Validatoren[validatorKey]; found {
+
+			err := validator.Validate(route)
+
+			if err != nil {
+				route.err = newBadRouteError(route, err.Error())
+				break
+			}
 		}
 	}
-
-	route.methodName = method
 
 	r.routes[method] = append(r.routes[method], route)
 	return route

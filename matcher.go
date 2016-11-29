@@ -15,7 +15,7 @@ const (
 // Matcher types try to match a request.
 type Matcher interface {
 	Match(*http.Request) bool
-	rank() int
+	Rank() int
 }
 
 // headerMatcher matches the request against header values.
@@ -25,7 +25,7 @@ func (m headerMatcher) Match(r *http.Request) bool {
 	return matchMapWithString(m, r.Header, true)
 }
 
-func (m headerMatcher) rank() int {
+func (m headerMatcher) Rank() int {
 	return rankAny
 }
 
@@ -37,7 +37,7 @@ func (m MatcherFunc) Match(r *http.Request) bool {
 	return m(r)
 }
 
-func (m MatcherFunc) rank() int {
+func (m MatcherFunc) Rank() int {
 	return rankAny
 }
 
@@ -62,7 +62,7 @@ func (m schemeMatcher) Match(r *http.Request) bool {
 	return false
 }
 
-func (m schemeMatcher) rank() int {
+func (m schemeMatcher) Rank() int {
 	return rankScheme
 }
 
@@ -77,7 +77,7 @@ func (m pathMatcher) Match(r *http.Request) bool {
 	return false
 }
 
-func (m pathMatcher) rank() int {
+func (m pathMatcher) Rank() int {
 	return rankPath
 }
 
@@ -108,7 +108,7 @@ Loop:
 	}
 }
 
-func (m pathWithVarsMatcher) rank() int {
+func (m pathWithVarsMatcher) Rank() int {
 	return rankPath
 }
 
@@ -142,6 +142,6 @@ func (m pathRegexMatcher) Match(r *http.Request) bool {
 	return false
 }
 
-func (m pathRegexMatcher) rank() int {
+func (m pathRegexMatcher) Rank() int {
 	return rankPath
 }
