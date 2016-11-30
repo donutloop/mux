@@ -120,7 +120,7 @@ Status: Alpha (Not ready for production)
     func main() {
         r := newRouter()
         
-        r.Get("/home-2", homeHandler).Schemes("https")
+        r.Get("/home", homeHandler).Schemes("https")
         
         errs := r.ListenAndServe(":8080")
         for _ , err := range errs {
@@ -131,9 +131,9 @@ Status: Alpha (Not ready for production)
         }
     }
 
-    func userHandler(rw http.ResponseWriter, req *http.Request){
+    func homeHandler(rw http.ResponseWriter, req *http.Request){
         //...
-        rw.Write([]byte("Created successfully a new user")
+        rw.Write([]byte("Hello world")
     }
 ```
 
