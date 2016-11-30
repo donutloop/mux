@@ -29,8 +29,6 @@ type Route struct {
 	path string
 
 	router *Router
-
-	buildVarsFunc BuildVarsFunc
 }
 
 //BadRouteError creates error for a bad route
@@ -186,34 +184,6 @@ func (r *Route) Headers(pairs ...string) *Route {
 // MatcherFunc adds a custom function to be used as request matcher.
 func (r *Route) MatcherFunc(f MatcherFunc) *Route {
 	return r.addMatcher(f)
-}
-
-// BuildVarsFunc is the function signature used by custom build variable
-// functions (which can modify route variables before a route's URL is built).
-type BuildVarsFunc func(map[string]string) map[string]string
-
-// BuildVarsFunc adds a custom function to be used to modify build variables
-// before a route's URL is built.
-func (r *Route) BuildVarsFunc(f BuildVarsFunc) *Route {
-	r.buildVarsFunc = f
-	return r
-}
-
-// prepareVars converts the route variable pairs into a map. If the route has a
-// BuildVarsFunc, it is invoked.
-func (r *Route) prepareVars(pairs ...string) (map[string]string, error) {
-	m, err := convertStringsToMap(isEvenPairs, pairs...)
-	if err != nil {
-		return nil, err
-	}
-	return r.buildVars(m), nil
-}
-
-func (r *Route) buildVars(m map[string]string) map[string]string {
-	if r.buildVarsFunc != nil {
-		m = r.buildVarsFunc(m)
-	}
-	return m
 }
 
 // implements the sort interface (len, swap, less)

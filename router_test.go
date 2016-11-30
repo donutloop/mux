@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 )
 
@@ -16,6 +17,7 @@ type routeTest struct {
 	method     string
 	statusCode int
 	kind       string
+	queries    map[string][]string
 	route      func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request))
 }
 
@@ -177,6 +179,17 @@ func TestPath(t *testing.T) {
 			},
 		},
 		{
+			title:      "(GET) Path route with vars",
+			path:       "/api/artcile?limit=10",
+			method:     http.MethodOptions,
+			statusCode: http.StatusOK,
+			kind:       "HandlerFunc",
+			queries:    map[string][]string{"limit": []string{"10"}},
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.HandleFunc(method, "/api/artcile", handler)
+			},
+		},
+		{
 			title:      "(GET) Path route with single path",
 			path:       "/api/",
 			method:     http.MethodGet,
@@ -251,8 +264,29 @@ func TestPath(t *testing.T) {
 
 func testRoute(rt routeTest) (int, bool) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
+		if rt.queries != nil {
+
+			ok := false
+			queries := getQueries(r)
+		outerLoop:
+			for k, v := range rt.queries {
+				if reflect.DeepEqual(v, queries.Get(k)) {
+					ok = true
+					break outerLoop
+				}
+			}
+
+			if ok {
+				w.Write([]byte("unsuccesfully"))
+			} else {
+				w.Write([]byte("unsuccesfully"))
+			}
+			return
+		}
+
 		w.Write([]byte("succesfully"))
 	}
+
 	r := NewRouter()
 	rt.route(r, rt.path, rt.method, handler)
 
@@ -267,7 +301,7 @@ func testRoute(rt routeTest) (int, bool) {
 		return -1, false
 	}
 
-	if res.Code != rt.statusCode && content.String() != "succesfully" {
+	if res.Code != rt.statusCode || content.String() != "succesfully" {
 		return res.Code, false
 	}
 

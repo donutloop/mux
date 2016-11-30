@@ -3,19 +3,21 @@ package mux
 import (
 	"context"
 	"net/http"
+	"net/url"
+	"strings"
 )
 
 type contextKey int
 
 const (
-	varsKey contextKey = iota
+	queriesKey contextKey = iota
 	routeKey
 )
 
-// Vars returns the route variables for the current request, if any.
-func Vars(r *http.Request) map[string]string {
-	if rv := contextGet(r, varsKey); rv != nil {
-		return rv.(map[string]string)
+// getQueries returns the route variables for the current request, if any.
+func getQueries(r *http.Request) queries {
+	if rv := contextGet(r, queriesKey); rv != nil {
+		return rv.(queries)
 	}
 	return nil
 }
@@ -32,8 +34,9 @@ func CurrentRoute(r *http.Request) *Route {
 	return nil
 }
 
-func setVars(r *http.Request, val interface{}) *http.Request {
-	return contextSet(r, varsKey, val)
+func setQueries(r *http.Request) *http.Request {
+	queries, _ := extractQueries(r)
+	return contextSet(r, queriesKey, queries)
 }
 
 func setCurrentRoute(r *http.Request, val interface{}) *http.Request {
@@ -50,4 +53,33 @@ func contextSet(r *http.Request, key, val interface{}) *http.Request {
 	}
 
 	return r.WithContext(context.WithValue(r.Context(), key, val))
+}
+
+type queries map[string][]string
+
+// Get return the key value, of the current *http.Request quer
+func (q queries) Get(key string) []string {
+	if value, found := q[key]; found {
+		return value
+	}
+	return []string{}
+}
+
+func extractQueries(req *http.Request) (queries, error) {
+
+	queriesRaw, err := url.ParseQuery(req.URL.RawQuery)
+
+	if err != nil {
+		return nil, err
+	}
+
+	queries := queries(map[string][]string{})
+	for k, v := range queriesRaw {
+		for _, item := range v {
+			values := strings.Split(item, ",")
+			queries[k] = append(queries[k], values...)
+		}
+	}
+
+	return queries, nil
 }

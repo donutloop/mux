@@ -94,6 +94,7 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	req = setCurrentRoute(req, route)
+	req = setQueries(req)
 
 	if route.handler == nil {
 		route.handler = r.notFoundHandler()
