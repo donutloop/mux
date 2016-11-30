@@ -12,10 +12,11 @@ type contextKey int
 const (
 	queriesKey contextKey = iota
 	routeKey
+	varsKey
 )
 
-// getQueries returns the route variables for the current request, if any.
-func getQueries(r *http.Request) queries {
+// GetQueries returns the query variables for the current request, if any.
+func GetQueries(r *http.Request) queries {
 	if rv := contextGet(r, queriesKey); rv != nil {
 		return rv.(queries)
 	}
@@ -42,6 +43,18 @@ func setCurrentRoute(r *http.Request, val interface{}) *http.Request {
 	return contextSet(r, routeKey, val)
 }
 
+// GetVars returns the route variables for the current request, if any.
+func GetVars(r *http.Request) map[string]string {
+	if rv := contextGet(r, varsKey); rv != nil {
+		return rv.(map[string]string)
+	}
+	return nil
+}
+
+func setVars(r *http.Request, val interface{}) *http.Request {
+	return contextSet(r, varsKey, val)
+}
+
 func contextGet(r *http.Request, key interface{}) interface{} {
 	return r.Context().Value(key)
 }
@@ -62,6 +75,11 @@ func (q queries) Get(key string) []string {
 		return value
 	}
 	return []string{}
+}
+
+// Get returns all queries of the current *http.Request queries
+func (q queries) GetAll() map[string][]string {
+	return q
 }
 
 func extractQueries(req *http.Request) (queries, error) {

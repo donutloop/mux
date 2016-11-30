@@ -18,6 +18,7 @@ type routeTest struct {
 	statusCode int
 	kind       string
 	queries    map[string][]string
+	vars       map[string]string
 	route      func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request))
 }
 
@@ -141,9 +142,10 @@ func TestPath(t *testing.T) {
 		{
 			title:      "(GET) Path route with vars",
 			path:       "/api/user/2",
-			method:     http.MethodOptions,
+			method:     http.MethodGet,
 			statusCode: http.StatusOK,
 			kind:       "HandlerFunc",
+			vars:       map[string]string{":number": "2"},
 			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
 				r.HandleFunc(method, "/api/user/:number", handler)
 			},
@@ -151,9 +153,10 @@ func TestPath(t *testing.T) {
 		{
 			title:      "(GET) Path route with vars",
 			path:       "/api/user/32",
-			method:     http.MethodOptions,
+			method:     http.MethodGet,
 			statusCode: http.StatusOK,
 			kind:       "HandlerFunc",
+			vars:       map[string]string{":number": "32"},
 			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
 				r.HandleFunc(method, "/api/user/:number", handler)
 			},
@@ -161,9 +164,10 @@ func TestPath(t *testing.T) {
 		{
 			title:      "(GET) Path route with vars",
 			path:       "/api/user/32/article/golang",
-			method:     http.MethodOptions,
+			method:     http.MethodGet,
 			statusCode: http.StatusOK,
 			kind:       "HandlerFunc",
+			vars:       map[string]string{":number": "32", ":string": "golang"},
 			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
 				r.HandleFunc(method, "/api/user/:number/article/:string", handler)
 			},
@@ -171,7 +175,7 @@ func TestPath(t *testing.T) {
 		{
 			title:      "(GET) Path route with vars",
 			path:       "/api/user/3",
-			method:     http.MethodOptions,
+			method:     http.MethodGet,
 			statusCode: http.StatusOK,
 			kind:       "HandlerFunc",
 			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
@@ -179,9 +183,9 @@ func TestPath(t *testing.T) {
 			},
 		},
 		{
-			title:      "(GET) Path route with vars",
+			title:      "(GET) Path route with queries",
 			path:       "/api/artcile?limit=10",
-			method:     http.MethodOptions,
+			method:     http.MethodGet,
 			statusCode: http.StatusOK,
 			kind:       "HandlerFunc",
 			queries:    map[string][]string{"limit": []string{"10"}},
@@ -264,27 +268,32 @@ func TestPath(t *testing.T) {
 
 func testRoute(rt routeTest) (int, bool) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		if rt.queries != nil {
 
-			ok := false
-			queries := getQueries(r)
-
-			for k, v := range rt.queries {
-				if reflect.DeepEqual(v, queries.Get(k)) {
-					ok = true
-					break
-				}
+		okQueries := true
+		if nil != rt.queries {
+			if !reflect.DeepEqual(rt.queries, GetQueries(r).GetAll()) {
+				okQueries = false
 			}
-
-			if ok {
-				w.Write([]byte("succesfully"))
-			} else {
-				w.Write([]byte("unsuccesfully"))
-			}
-			return
 		}
 
-		w.Write([]byte("succesfully"))
+		okVars := true
+		if nil != rt.vars {
+			if !reflect.DeepEqual(rt.vars, GetVars(r)) {
+				okVars = false
+			}
+		}
+
+		if nil != rt.queries && nil != rt.vars && okVars && okQueries {
+			w.Write([]byte("succesfully"))
+		} else if nil != rt.queries && okQueries {
+			w.Write([]byte("succesfully"))
+		} else if nil != rt.vars && okVars {
+			w.Write([]byte("succesfully"))
+		} else if nil == rt.queries && nil == rt.vars {
+			w.Write([]byte("succesfully"))
+		} else {
+			w.Write([]byte("unsuccesfully"))
+		}
 	}
 
 	r := NewRouter()

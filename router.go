@@ -96,6 +96,10 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	req = setCurrentRoute(req, route)
 	req = setQueries(req)
 
+	if route.hasVars() {
+		req = setVars(req, route.extractVars(req))
+	}
+
 	if route.handler == nil {
 		route.handler = r.notFoundHandler()
 	}
@@ -134,8 +138,9 @@ func cleanPath(p string) string {
 // NewRoute registers an empty route.
 func (r *Router) NewRoute() *Route {
 	route := &Route{
-		router: r,
-		ms:     matchers([]Matcher{}),
+		router:      r,
+		ms:          matchers([]Matcher{}),
+		varIndexies: map[string]int{},
 	}
 	return route
 }

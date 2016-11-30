@@ -3,6 +3,7 @@ package mux
 import (
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 const (
@@ -27,6 +28,8 @@ type Route struct {
 	methodName string
 	// path used to build proper error messages
 	path string
+	// varIndexies used to extract vars
+	varIndexies map[string]int
 
 	router *Router
 }
@@ -145,6 +148,7 @@ func (r *Route) Path(path string) *Route {
 		r.kind = kindRegexPath
 	case containsVars(path):
 		matcher = newPathWithVarsMatcher(path)
+		r.extractVarsIndexies(":", path)
 		r.kind = kindVarsPath
 	default:
 		matcher = pathMatcher(path)
@@ -155,6 +159,48 @@ func (r *Route) Path(path string) *Route {
 	r.addMatcher(matcher)
 
 	return r
+}
+
+func (r *Route) extractVarsIndexies(prefix string, path string) {
+
+	urlSeg := strings.Split(path, "/")
+
+	indexies := map[string]int{}
+	var count int
+	for k, v := range urlSeg {
+		if strings.HasPrefix(v, prefix) {
+
+			if _, found := indexies[v]; !found {
+				indexies[v] = k
+				continue
+			}
+
+			count++
+			indexies[v+string(count)] = k
+		}
+	}
+
+	r.varIndexies = indexies
+}
+
+func (r *Route) hasVars() bool {
+	if 0 == len(r.varIndexies) {
+		return false
+	}
+	return true
+}
+
+func (r *Route) extractVars(req *http.Request) map[string]string {
+
+	urlSeg := strings.Split(req.URL.Path, "/")
+
+	vars := map[string]string{}
+
+	for k, v := range r.varIndexies {
+		vars[k] = urlSeg[v]
+	}
+
+	return vars
 }
 
 // Schemes adds a matcher for URL schemes.
