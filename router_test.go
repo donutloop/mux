@@ -268,11 +268,11 @@ func testRoute(rt routeTest) (int, bool) {
 
 			ok := false
 			queries := getQueries(r)
-		outerLoop:
+
 			for k, v := range rt.queries {
 				if reflect.DeepEqual(v, queries.Get(k)) {
 					ok = true
-					break outerLoop
+					break
 				}
 			}
 
@@ -328,7 +328,7 @@ func TestRouteNotfound(t *testing.T) {
 			res := httptest.NewRecorder()
 			r.ServeHTTP(res, req)
 
-			if res.Code != 404 {
+			if res.Code != http.StatusNotFound {
 				t.Errorf("Unexpected status code (%d)", res.Code)
 			}
 		})
@@ -356,7 +356,7 @@ func TestRouteWithoutHandler(t *testing.T) {
 			res := httptest.NewRecorder()
 			r.ServeHTTP(res, req)
 
-			if res.Code != 404 {
+			if res.Code != http.StatusNotFound {
 				t.Errorf("Unexpected status code (%d)", res.Code)
 			}
 		})
@@ -382,7 +382,7 @@ func TestHasErrors(t *testing.T) {
 
 func TestSortsRoutes(t *testing.T) {
 
-	kinds := []int{1, 3, 2, 3, 2, 3, 3, 2, 1}
+	kinds := []int{0, 2, 1, 2, 1, 2, 2, 1, 0}
 
 	r := &Router{}
 	r.routes = map[string]routes{}
@@ -399,7 +399,7 @@ func TestSortsRoutes(t *testing.T) {
 
 	routes := r.routes[http.MethodGet]
 
-	if routes[0].kind != 1 || routes[len(routes)-1].kind != 3 || routes[2].kind != 2 {
-		t.Error("Sort of routes is bad")
+	if routes[len(routes)-1].kind != kindRegexPath || routes[2].kind != kindVarsPath || routes[0].kind != kindNormalPath {
+		t.Errorf("Sort of routes is bad")
 	}
 }

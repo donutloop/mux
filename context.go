@@ -25,8 +25,7 @@ func getQueries(r *http.Request) queries {
 // CurrentRoute returns the matched route for the current request, if any.
 // This only works when called inside the handler of the matched route
 // because the matched route is stored in the request context which is cleared
-// after the handler returns, unless the KeepContext option is set on the
-// Router.
+// after the handler returns
 func CurrentRoute(r *http.Request) *Route {
 	if rv := contextGet(r, routeKey); rv != nil {
 		return rv.(*Route)
@@ -57,7 +56,7 @@ func contextSet(r *http.Request, key, val interface{}) *http.Request {
 
 type queries map[string][]string
 
-// Get return the key value, of the current *http.Request quer
+// Get return the key value, of the current *http.Request queries
 func (q queries) Get(key string) []string {
 	if value, found := q[key]; found {
 		return value
