@@ -85,17 +85,47 @@ Status: Alpha (Not ready for production)
         
         r.Post("/user-2/create", userHandler)
 
-        r.RegisterRoute(http.MethodPost, r.NewRoute().Path("/user-3").HandlerFunc(userHandler))
+        r.RegisterRoute(http.MethodPost, r.NewRoute().Path("/user-3/create").HandlerFunc(userHandler))
         
-        r.RegisterRoute(http.MethodPost, r.NewRoute().Path("/user-4").Handler(http.HandlerFunc(userHandler)))
+        r.RegisterRoute(http.MethodPost, r.NewRoute().Path("/user-4/create").Handler(http.HandlerFunc(userHandler)))
         
-
         errs := r.ListenAndServe(":8080")
-
         for _ , err := range errs {
             fmt.print(err)
         }
+        if 0 != len(errs) {
+            os.Exit(2)
+        }
+    }
 
+    func userHandler(rw http.ResponseWriter, req *http.Request){
+        //...
+        rw.Write([]byte("Created successfully a new user")
+    }
+```
+
+## Example (Method GET & Scheme Matcher):
+
+```go
+    package main
+
+    import (
+        "net/http"
+        "fmt"
+        "os"
+
+        "github.com/donutloop/mux"
+    )
+
+    func main() {
+        r := newRouter()
+        
+        r.Get("/home-2", homeHandler).Schemes("https")
+        
+        errs := r.ListenAndServe(":8080")
+        for _ , err := range errs {
+            fmt.print(err)
+        }
         if 0 != len(errs) {
             os.Exit(2)
         }
