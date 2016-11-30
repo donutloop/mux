@@ -277,7 +277,7 @@ func testRoute(rt routeTest) (int, bool) {
 			}
 
 			if ok {
-				w.Write([]byte("unsuccesfully"))
+				w.Write([]byte("succesfully"))
 			} else {
 				w.Write([]byte("unsuccesfully"))
 			}
