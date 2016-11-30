@@ -59,4 +59,41 @@ Status: Alpha (Not ready for production)
     }
 ```
 
+## Example (Method POST):
+
+```go
+    package main
+
+    import (
+        "net/http"
+        "fmt"
+        "os"
+
+        "github.com/donutloop/mux"
+    )
+
+    func main() {
+        r := newRouter()
+
+        r.HandleFunc(http.MethodPost, "/user/create", userHandler)
+        r.Handler(http.MethodPost, "/user-1/create", http.HandlerFunc(userHandler)
+        r.Post("/user-2/create", userHandler)
+
+        errs := r.ListenAndServe(":8080")
+
+        for _ , err := range errs {
+            fmt.print(err)
+        }
+
+        if 0 != len(errs) {
+            os.Exit(2)
+        }
+    }
+
+    func homeHandler(rw http.ResponseWriter, req *http.Request){
+        //...
+        rw.Write([]byte("Created successfully a new user")
+    }
+```
+
 ## More documentaion comming soon
