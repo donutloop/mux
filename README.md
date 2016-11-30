@@ -39,15 +39,19 @@ Status: Alpha (Not ready for production)
         r := newRouter()
 
         r.HandleFunc(http.MethodGet, "/home", homeHandler)
-        r.Handler(http.MethodGet, "/home-1", http.HandlerFunc(homeHandler)
+        
+        r.Handler(http.MethodGet, "/home-1", http.HandlerFunc(homeHandler))
+        
         r.Get("/home-2", homeHandler)
-
+        
+        r.RegisterRoute(http.MethodGet, r.NewRoute().Path("/home-3").HandlerFunc(homeHandler))
+        
+        r.RegisterRoute(http.MethodGet, r.NewRoute().Path("/home-4").Handler(http.HandlerFunc(homeHandler)))
+        
         errs := r.ListenAndServe(":8080")
-
         for _ , err := range errs {
             fmt.print(err)
         }
-
         if 0 != len(errs) {
             os.Exit(2)
         }
@@ -76,8 +80,15 @@ Status: Alpha (Not ready for production)
         r := newRouter()
 
         r.HandleFunc(http.MethodPost, "/user/create", userHandler)
+        
         r.Handler(http.MethodPost, "/user-1/create", http.HandlerFunc(userHandler)
+        
         r.Post("/user-2/create", userHandler)
+
+        r.RegisterRoute(http.MethodPost, r.NewRoute().Path("/user-3").HandlerFunc(userHandler))
+        
+        r.RegisterRoute(http.MethodPost, r.NewRoute().Path("/user-4").Handler(http.HandlerFunc(userHandler)))
+        
 
         errs := r.ListenAndServe(":8080")
 
@@ -90,10 +101,10 @@ Status: Alpha (Not ready for production)
         }
     }
 
-    func homeHandler(rw http.ResponseWriter, req *http.Request){
+    func userHandler(rw http.ResponseWriter, req *http.Request){
         //...
         rw.Write([]byte("Created successfully a new user")
     }
 ```
 
-## More documentaion comming soon
+## More documentation comming soon
