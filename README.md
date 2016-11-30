@@ -22,6 +22,8 @@ Status: Alpha (Not ready for production)
 * Routes are sorted
 * Context support
 
+## Example (Method GET):
+
 ```go
     package main
 
@@ -37,8 +39,8 @@ Status: Alpha (Not ready for production)
         r := newRouter()
 
         r.HandleFunc(http.MethodGet, "/home", homeHandler)
-        r.Handler(http.MethodGet, "/home", http.HandlerFunc(homeHandler)
-        r.Get("/home", homeHandler)
+        r.Handler(http.MethodGet, "/home-1", http.HandlerFunc(homeHandler)
+        r.Get("/home-2", homeHandler)
 
         errs := r.ListenAndServe(":8080")
 
@@ -56,3 +58,5 @@ Status: Alpha (Not ready for production)
         rw.Write([]byte("Hello World!")
     }
 ```
+
+## More documentaion comming soon
