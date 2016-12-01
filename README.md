@@ -54,13 +54,16 @@ Status: Alpha (Not ready for production)
         
         r.RegisterRoute(http.MethodGet, r.NewRoute().Path("/home-4").Handler(http.HandlerFunc(homeHandler)))
         
-        errs := r.ListenAndServe(":8080")
-        for _ , err := range errs {
-            fmt.print(err)
-        }
-        if 0 != len(errs) {
-            os.Exit(2)
-        }
+    	errorHandler := func(errs []error) {
+            for _ , err := range errs {
+                fmt.Print(err)
+            }
+            if 0 != len(errs) {
+                os.Exit(2)
+            }
+	    }
+
+        errs := r.ListenAndServe(":8080", errorHandler)
     }
 
     func homeHandler(rw http.ResponseWriter, req *http.Request){
@@ -95,13 +98,16 @@ Status: Alpha (Not ready for production)
         
         r.RegisterRoute(http.MethodPost, r.NewRoute().Path("/user-4/create").Handler(http.HandlerFunc(userHandler)))
         
-        errs := r.ListenAndServe(":8080")
-        for _ , err := range errs {
-            fmt.print(err)
-        }
-        if 0 != len(errs) {
-            os.Exit(2)
-        }
+    	errorHandler := func(errs []error) {
+            for _ , err := range errs {
+                fmt.Print(err)
+            }
+            if 0 != len(errs) {
+                os.Exit(2)
+            }
+	    }
+
+        errs := r.ListenAndServe(":8080", errorHandler)
     }
 
     func userHandler(rw http.ResponseWriter, req *http.Request){
@@ -128,13 +134,16 @@ Status: Alpha (Not ready for production)
         
         r.Get("/home", homeHandler).Schemes("https")
         
-        errs := r.ListenAndServe(":8080")
-        for _ , err := range errs {
-            fmt.print(err)
-        }
-        if 0 != len(errs) {
-            os.Exit(2)
-        }
+    	errorHandler := func(errs []error) {
+            for _ , err := range errs {
+                fmt.Print(err)
+            }
+            if 0 != len(errs) {
+                os.Exit(2)
+            }
+	    }
+
+        errs := r.ListenAndServe(":8080", errorHandler)
     }
 
     func homeHandler(rw http.ResponseWriter, req *http.Request){

@@ -217,13 +217,22 @@ func (r *Router) Head(path string, handlerFunc func(http.ResponseWriter, *http.R
 // ListenAndServe listens on the TCP network address addr
 // and then calls Serve with handler to handle requests
 // on incoming connections.
-func (r *Router) ListenAndServe(port string) (errs []error) {
+func (r *Router) ListenAndServe(port string, callback func(errs []error)) {
 	var ok bool
+	errs := []error{}
+
 	if ok, errs = r.HasErrors(); ok {
-		return errs
+		callback(errs)
+		return
 	}
+
 	r.SortRoutes()
 	errs = append(errs, http.ListenAndServe(port, r))
+
+	if 0 != len(errs) {
+		callback(errs)
+	}
+
 	return
 }
 
