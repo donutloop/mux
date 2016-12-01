@@ -46,7 +46,7 @@ Status: Alpha (Not ready for production)
 
         r.HandleFunc(http.MethodGet, "/home", homeHandler)
         
-        r.Handler(http.MethodGet, "/home-1", http.HandlerFunc(homeHandler))
+        r.Handle(http.MethodGet, "/home-1", http.HandlerFunc(homeHandler))
         
         r.Get("/home-2", homeHandler)
         
@@ -63,12 +63,12 @@ Status: Alpha (Not ready for production)
             }
 	    }
 
-        errs := r.ListenAndServe(":8080", errorHandler)
+        r.ListenAndServe(":8080", errorHandler)
     }
 
     func homeHandler(rw http.ResponseWriter, req *http.Request) {
         //...
-        rw.Write([]byte("Hello World!")
+        rw.Write([]byte("Hello World!"))
     }
 ```
 
@@ -90,7 +90,7 @@ Status: Alpha (Not ready for production)
 
         r.HandleFunc(http.MethodPost, "/user/create", userHandler)
         
-        r.Handler(http.MethodPost, "/user-1/create", http.HandlerFunc(userHandler)
+        r.Handle(http.MethodPost, "/user-1/create", http.HandlerFunc(userHandler))
         
         r.Post("/user-2/create", userHandler)
 
@@ -107,12 +107,12 @@ Status: Alpha (Not ready for production)
             }
 	    }
 
-        errs := r.ListenAndServe(":8080", errorHandler)
+        r.ListenAndServe(":8080", errorHandler)
     }
 
     func userHandler(rw http.ResponseWriter, req *http.Request) {
         //...
-        rw.Write([]byte("Created successfully a new user")
+        rw.Write([]byte("Created successfully a new user"))
     }
 ```
 
@@ -143,12 +143,12 @@ Status: Alpha (Not ready for production)
             }
 	    }
 
-        errs := r.ListenAndServe(":8080", errorHandler)
+        r.ListenAndServe(":8080", errorHandler)
     }
 
     func homeHandler(rw http.ResponseWriter, req *http.Request) {
         //...
-        rw.Write([]byte("Hello world")
+        rw.Write([]byte("Hello world"))
     }
 ```
 ## Example (Method Put & GetVars):
@@ -178,13 +178,13 @@ Status: Alpha (Not ready for production)
             }
 	    }
 
-        errs := r.ListenAndServe(":8080", errorHandler)
+        r.ListenAndServe(":8080", errorHandler)
     }
 
     func userHandler(rw http.ResponseWriter, req *http.Request) {
-        userId := GetVars(req).Get(":number")
+        userId := mux.GetVars(req).Get(":number")
         //...
-        rw.Write([]byte("Updated successfully a new user")
+        rw.Write([]byte("Updated successfully a new user"))
     }
 ```
 
@@ -205,7 +205,7 @@ Status: Alpha (Not ready for production)
         r := mux.NewRouter()
         
         //URL: http://localhost:8080/users?limit=10
-        r.Post("/users", userHandler)
+        r.Get("/users", userHandler)
 
     	errorHandler := func(errs []error) {
             for _ , err := range errs {
@@ -216,11 +216,11 @@ Status: Alpha (Not ready for production)
             }
 	    }
 
-        errs := r.ListenAndServe(":8080", errorHandler)
+        r.ListenAndServe(":8080", errorHandler)
     }
 
     func userHandler(rw http.ResponseWriter, req *http.Request) {
-        limit := GetQueries(req).Get("limit")[0]
+        limit := mux.GetQueries(req).Get("limit")[0]
         //...
     }
 ```
