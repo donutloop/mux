@@ -190,11 +190,26 @@ func (r *Route) hasVars() bool {
 	return true
 }
 
-func (r *Route) extractVars(req *http.Request) map[string]string {
+type vars map[string]string
+
+// Get return the key value, of the current *http.Request queries
+func (v vars) Get(key string) string {
+	if value, found := v[key]; found {
+		return value
+	}
+	return ""
+}
+
+// Get returns all queries of the current *http.Request queries
+func (v vars) GetAll() map[string]string {
+	return v
+}
+
+func (r *Route) extractVars(req *http.Request) vars {
 
 	urlSeg := strings.Split(req.URL.Path, "/")
 
-	vars := map[string]string{}
+	vars := vars(map[string]string{})
 
 	for k, v := range r.varIndexies {
 		vars[k] = urlSeg[v]

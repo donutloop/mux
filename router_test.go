@@ -278,7 +278,7 @@ func testRoute(rt routeTest) (int, bool) {
 
 		okVars := true
 		if nil != rt.vars {
-			if !reflect.DeepEqual(rt.vars, GetVars(r)) {
+			if !reflect.DeepEqual(rt.vars, GetVars(r).GetAll()) {
 				okVars = false
 			}
 		}

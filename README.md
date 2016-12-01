@@ -10,8 +10,8 @@ Status: Alpha (Not ready for production)
 
 * REGEX URL Matcher
 * Vars URL Matcher
-* getVars in handler
-* getQueries in handler
+* GetVars in handler
+* GetQueries in handler
 * URL Matcher
 * Header Matcher
 * Scheme Matcher 
@@ -42,7 +42,7 @@ Status: Alpha (Not ready for production)
     )
 
     func main() {
-        r := mux.newRouter()
+        r := mux.NewRouter()
 
         r.HandleFunc(http.MethodGet, "/home", homeHandler)
         
@@ -86,7 +86,7 @@ Status: Alpha (Not ready for production)
     )
 
     func main() {
-        r := mux.newRouter()
+        r := mux.NewRouter()
 
         r.HandleFunc(http.MethodPost, "/user/create", userHandler)
         
@@ -130,7 +130,7 @@ Status: Alpha (Not ready for production)
     )
 
     func main() {
-        r := mux.newRouter()
+        r := mux.NewRouter()
         
         r.Get("/home", homeHandler).Schemes("https")
         
@@ -151,5 +151,40 @@ Status: Alpha (Not ready for production)
         rw.Write([]byte("Hello world")
     }
 ```
+## Example (Method Put & GetVars):
 
+```go
+    package main
+
+    import (
+        "net/http"
+        "fmt"
+        "os"
+
+        "github.com/donutloop/mux"
+    )
+
+    func main() {
+        r := mux.NewRouter()
+        
+        r.Post("/user/update/3", userHandler)
+
+    	errorHandler := func(errs []error) {
+            for _ , err := range errs {
+                fmt.Print(err)
+            }
+            if 0 != len(errs) {
+                os.Exit(2)
+            }
+	    }
+
+        errs := r.ListenAndServe(":8080", errorHandler)
+    }
+
+    func userHandler(rw http.ResponseWriter, req *http.Request){
+        userId := GetVars(req).Get(":number")
+        //...
+        rw.Write([]byte("Created successfully a new user")
+    }
+```
 ## More documentation comming soon

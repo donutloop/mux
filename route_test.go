@@ -8,7 +8,6 @@ import (
 )
 
 func TestNewBadRouteError(t *testing.T) {
-
 	r := &Route{
 		methodName: "GET",
 		path:       "/api/user",

@@ -44,9 +44,9 @@ func setCurrentRoute(r *http.Request, val interface{}) *http.Request {
 }
 
 // GetVars returns the route variables for the current request, if any.
-func GetVars(r *http.Request) map[string]string {
+func GetVars(r *http.Request) vars {
 	if rv := contextGet(r, varsKey); rv != nil {
-		return rv.(map[string]string)
+		return rv.(vars)
 	}
 	return nil
 }
