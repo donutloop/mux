@@ -184,7 +184,44 @@ Status: Alpha (Not ready for production)
     func userHandler(rw http.ResponseWriter, req *http.Request) {
         userId := GetVars(req).Get(":number")
         //...
-        rw.Write([]byte("Created successfully a new user")
+        rw.Write([]byte("Updated successfully a new user")
+    }
+```
+
+## Example (Method GET & GetQueries):
+
+```go
+    package main
+
+    import (
+        "net/http"
+        "fmt"
+        "os"
+
+        "github.com/donutloop/mux"
+    )
+
+    func main() {
+        r := mux.NewRouter()
+        
+        //URL: http://localhost:8080/users?limit=10
+        r.Post("/users", userHandler)
+
+    	errorHandler := func(errs []error) {
+            for _ , err := range errs {
+                fmt.Print(err)
+            }
+            if 0 != len(errs) {
+                os.Exit(2)
+            }
+	    }
+
+        errs := r.ListenAndServe(":8080", errorHandler)
+    }
+
+    func userHandler(rw http.ResponseWriter, req *http.Request) {
+        limit := GetQueries(req).Get("limit")[0]
+        //...
     }
 ```
 ## More documentation comming soon
