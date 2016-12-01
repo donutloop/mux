@@ -9,7 +9,9 @@ Status: Alpha (Not ready for production)
 ## Features:
 
 * REGEX URL Matcher
-* Vars URl Matcher
+* Vars URL Matcher
+* getVars in handler
+* getQueries in handler
 * URL Matcher
 * Header Matcher
 * Scheme Matcher 
@@ -21,6 +23,10 @@ Status: Alpha (Not ready for production)
 * Respect the Go standard http.Handler interface
 * Routes are sorted
 * Context support
+
+## Roadmap
+
+* HeaderRegex Matcher
 
 ## Example (Method GET):
 
@@ -36,7 +42,7 @@ Status: Alpha (Not ready for production)
     )
 
     func main() {
-        r := newRouter()
+        r := mux.newRouter()
 
         r.HandleFunc(http.MethodGet, "/home", homeHandler)
         
@@ -77,7 +83,7 @@ Status: Alpha (Not ready for production)
     )
 
     func main() {
-        r := newRouter()
+        r := mux.newRouter()
 
         r.HandleFunc(http.MethodPost, "/user/create", userHandler)
         
@@ -118,7 +124,7 @@ Status: Alpha (Not ready for production)
     )
 
     func main() {
-        r := newRouter()
+        r := mux.newRouter()
         
         r.Get("/home", homeHandler).Schemes("https")
         
