@@ -66,7 +66,7 @@ Status: Alpha (Not ready for production)
         errs := r.ListenAndServe(":8080", errorHandler)
     }
 
-    func homeHandler(rw http.ResponseWriter, req *http.Request){
+    func homeHandler(rw http.ResponseWriter, req *http.Request) {
         //...
         rw.Write([]byte("Hello World!")
     }
@@ -110,7 +110,7 @@ Status: Alpha (Not ready for production)
         errs := r.ListenAndServe(":8080", errorHandler)
     }
 
-    func userHandler(rw http.ResponseWriter, req *http.Request){
+    func userHandler(rw http.ResponseWriter, req *http.Request) {
         //...
         rw.Write([]byte("Created successfully a new user")
     }
@@ -146,7 +146,7 @@ Status: Alpha (Not ready for production)
         errs := r.ListenAndServe(":8080", errorHandler)
     }
 
-    func homeHandler(rw http.ResponseWriter, req *http.Request){
+    func homeHandler(rw http.ResponseWriter, req *http.Request) {
         //...
         rw.Write([]byte("Hello world")
     }
@@ -167,7 +167,7 @@ Status: Alpha (Not ready for production)
     func main() {
         r := mux.NewRouter()
         
-        r.Post("/user/update/3", userHandler)
+        r.Post("/user/update/:number", userHandler)
 
     	errorHandler := func(errs []error) {
             for _ , err := range errs {
@@ -181,7 +181,7 @@ Status: Alpha (Not ready for production)
         errs := r.ListenAndServe(":8080", errorHandler)
     }
 
-    func userHandler(rw http.ResponseWriter, req *http.Request){
+    func userHandler(rw http.ResponseWriter, req *http.Request) {
         userId := GetVars(req).Get(":number")
         //...
         rw.Write([]byte("Created successfully a new user")
