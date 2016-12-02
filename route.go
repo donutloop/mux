@@ -235,8 +235,8 @@ func (r *Route) Schemes(schemes ...string) *Route {
 // If the value is an empty string, it will match any value if the key is set.
 func (r *Route) Headers(pairs ...string) *Route {
 	if r.err == nil {
-		var headers map[string]string
-		headers, r.err = convertStringsToMap(isEvenPairs, pairs...)
+		var headers map[string]comparison
+		headers, r.err = convertStringsToMapString(isEvenPairs, pairs...)
 		return r.addMatcher(headerMatcher(headers))
 	}
 	return r
