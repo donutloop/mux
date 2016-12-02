@@ -161,7 +161,6 @@ func (r *Router) RegisterRoute(method string, route *Route) *Route {
 			}
 		}
 	}
-
 	r.routes[method] = append(r.routes[method], route)
 	return route
 }

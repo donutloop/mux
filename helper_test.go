@@ -32,17 +32,47 @@ func TestIsEvenPairs(t *testing.T) {
 	}
 }
 
-func TestConvertStringsToMap(t *testing.T) {
+func TestConvertStringsToMapString(t *testing.T) {
 	isEvenPairs := func(pairs ...string) (int, error) {
 		return 2, nil
 	}
 
 	pairs := []string{"content-type", "application/json"}
 
-	m, _ := convertStringsToMap(isEvenPairs, pairs...)
+	m, _ := convertStringsToMapString(isEvenPairs, pairs...)
 
-	if value, ok := m["content-type"]; !ok || value != "application/json" {
-		t.Error("Unexpected pair")
+	if value, ok := m["content-type"]; !ok || !value.compare("application/json") {
+		t.Errorf("Unexpected pair (%s)", string(value.(stringComparison)))
+	}
+}
+
+func TestConvertStringsToMapRegex(t *testing.T) {
+	isEvenPairs := func(pairs ...string) (int, error) {
+		return 2, nil
+	}
+
+	pairs := []string{"content-type", "application/json"}
+
+	m, _ := convertStringsToMapRegex(isEvenPairs, pairs...)
+
+	if value, ok := m["content-type"]; !ok || !value.compare("application/json") {
+		t.Errorf("Unexpected pair (%s)", value.(regexComparsion))
+	}
+}
+
+func TestGenericConvertStringsToMapFail(t *testing.T) {
+	isEvenPairs := func(pairs ...string) (int, error) {
+		return 2, nil
+	}
+
+	buildComparator := func(pair string) (comparison, error) {
+		return nil, errors.New("Somthing went wrong")
+	}
+
+	pairs := []string{"content-type", "application/json"}
+
+	if _, err := genericConvertStringsToMap(isEvenPairs, buildComparator, pairs...); err == nil {
+		t.Error("Expected a error")
 	}
 }
 
@@ -53,7 +83,26 @@ func TestConvertStringsToMapError(t *testing.T) {
 
 	pairs := []string{}
 
-	if _, err := convertStringsToMap(isEvenPairs, pairs...); err == nil {
+	if _, err := convertStringsToMapString(isEvenPairs, pairs...); err == nil {
 		t.Error("Unexpected nil error")
+	}
+}
+
+func TestMatchMap(t *testing.T) {
+
+	compare := map[string]comparison{
+		"content-type": stringComparison("application/json"),
+	}
+
+	toCompare := map[string][]string{
+		"content-type": []string{
+			"application/json",
+		},
+	}
+
+	ok := matchMap(compare, toCompare, false)
+
+	if !ok {
+		t.Error("Unexpected non match")
 	}
 }

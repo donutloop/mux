@@ -19,10 +19,10 @@ type Matcher interface {
 }
 
 // headerMatcher matches the request against header values.
-type headerMatcher map[string]string
+type headerMatcher map[string]comparison
 
 func (m headerMatcher) Match(r *http.Request) bool {
-	return matchMapWithString(m, r.Header, true)
+	return matchMap(m, r.Header, true)
 }
 
 func (m headerMatcher) Rank() int {
