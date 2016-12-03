@@ -1,6 +1,7 @@
 package mux
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"testing"
@@ -89,11 +90,13 @@ func TestMatcherFuncFail(t *testing.T) {
 func TestHeaderMatcher(t *testing.T) {
 
 	tests := []struct {
+		title string
 		m     func(pairs ...string) (Matcher, error)
 		req   func() *http.Request
 		pairs []string
 	}{
 		{
+			title: "Test header match",
 			m: func(pairs ...string) (Matcher, error) {
 				return newHeaderMatcher(pairs...)
 			},
@@ -109,6 +112,7 @@ func TestHeaderMatcher(t *testing.T) {
 			pairs: []string{"content-type", "applcation/json"},
 		},
 		{
+			title: "Test regex header match",
 			m: func(pairs ...string) (Matcher, error) {
 				return newHeaderRegexMatcher(pairs...)
 			},
@@ -126,15 +130,17 @@ func TestHeaderMatcher(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		matcher, err := test.m()
+		t.Run(fmt.Sprintf("Test kind: %s", test.title), func(t *testing.T) {
+			matcher, err := test.m()
 
-		if err != nil {
-			t.Errorf("Unexpected error (%s)", err.Error())
-		}
+			if err != nil {
+				t.Errorf("Unexpected error (%s)", err.Error())
+			}
 
-		req := test.req()
-		if !matcher.Match(req) {
-			t.Errorf("Unexpected not matched (%v)", req.Header)
-		}
+			req := test.req()
+			if !matcher.Match(req) {
+				t.Errorf("Unexpected not matched (%v)", req.Header)
+			}
+		})
 	}
 }
