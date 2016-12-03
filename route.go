@@ -234,11 +234,42 @@ func (r *Route) Schemes(schemes ...string) *Route {
 // The above route will only match if both request header values match.
 // If the value is an empty string, it will match any value if the key is set.
 func (r *Route) Headers(pairs ...string) *Route {
-	if r.err == nil {
-		var headers map[string]comparison
-		headers, r.err = convertStringsToMapString(isEvenPairs, pairs...)
-		return r.addMatcher(headerMatcher(headers))
+	if r.err != nil {
+		return r
 	}
+
+	matcher, err := newHeaderMatcher(pairs...)
+
+	if err != nil {
+		r.err = err
+	}
+
+	r.addMatcher(matcher)
+
+	return r
+}
+
+// HeadersRegex adds a matcher for request header values.
+// It accepts a sequence of key/value pairs to be matched. For example:
+//
+//     r := mux.NewRouter()
+//     r.Headers("Content-Type", "application/(json|html)")
+//
+// The above route will only match if both request header values match.
+// If the value is an empty string, it will match any value if the key is set.
+func (r *Route) HeadersRegex(pairs ...string) *Route {
+	if r.err != nil {
+		return r
+	}
+
+	matcher, err := newHeaderRegexMatcher(pairs...)
+
+	if err != nil {
+		r.err = err
+	}
+
+	r.addMatcher(matcher)
+
 	return r
 }
 

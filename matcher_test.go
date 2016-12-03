@@ -85,3 +85,56 @@ func TestMatcherFuncFail(t *testing.T) {
 		t.Errorf("Unexpected matched")
 	}
 }
+
+func TestHeaderMatcher(t *testing.T) {
+
+	tests := []struct {
+		m     func(pairs ...string) (Matcher, error)
+		req   func() *http.Request
+		pairs []string
+	}{
+		{
+			m: func(pairs ...string) (Matcher, error) {
+				return newHeaderMatcher(pairs...)
+			},
+			req: func() *http.Request {
+
+				req := &http.Request{
+					Header: http.Header{},
+				}
+				req.Header.Add("content-type", "applcation/json")
+
+				return req
+			},
+			pairs: []string{"content-type", "applcation/json"},
+		},
+		{
+			m: func(pairs ...string) (Matcher, error) {
+				return newHeaderRegexMatcher(pairs...)
+			},
+			req: func() *http.Request {
+
+				req := &http.Request{
+					Header: http.Header{},
+				}
+				req.Header.Add("content-type", "applcation/json")
+
+				return req
+			},
+			pairs: []string{"content-type", "applcation/(json|html)"},
+		},
+	}
+
+	for _, test := range tests {
+		matcher, err := test.m()
+
+		if err != nil {
+			t.Errorf("Unexpected error (%s)", err.Error())
+		}
+
+		req := test.req()
+		if !matcher.Match(req) {
+			t.Errorf("Unexpected not matched (%v)", req.Header)
+		}
+	}
+}
