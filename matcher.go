@@ -21,11 +21,40 @@ type Matcher interface {
 // headerMatcher matches the request against header values.
 type headerMatcher map[string]comparison
 
+func newHeaderMatcher(pairs ...string) (headerMatcher, error) {
+	headers, err := convertStringsToMapString(isEvenPairs, pairs...)
+	if err != nil {
+		return nil, err
+	}
+
+	return headerMatcher(headers), nil
+}
+
 func (m headerMatcher) Match(r *http.Request) bool {
 	return matchMap(m, r.Header, true)
 }
 
 func (m headerMatcher) Rank() int {
+	return rankAny
+}
+
+// headerRegexMatcher matches the request against header values.
+type headerRegexMatcher map[string]comparison
+
+func newHeaderRegexMatcher(pairs ...string) (headerRegexMatcher, error) {
+	headers, err := convertStringsToMapRegex(isEvenPairs, pairs...)
+	if err != nil {
+		return nil, err
+	}
+
+	return headerRegexMatcher(headers), nil
+}
+
+func (m headerRegexMatcher) Match(r *http.Request) bool {
+	return matchMap(m, r.Header, true)
+}
+
+func (m headerRegexMatcher) Rank() int {
 	return rankAny
 }
 
