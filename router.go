@@ -45,14 +45,21 @@ type Router struct {
 	Validatoren map[string]Validator
 	// This defines a flag for all routes.
 	CaseSensitiveURL bool
+	// this builds a route
+	constructRoute func(*Router) RouteInterface
+}
+
+//UseRoute that you can use diffrent instances routes
+func (r *Router) UseRoute(constructer func(*Router) RouteInterface) {
+	r.constructRoute = constructer
 }
 
 // Match matches registered routes against the request.
-func (r *Router) triggerMatching(req *http.Request) *Route {
+func (r *Router) triggerMatching(req *http.Request) RouteInterface {
 
 	if routesForMethod, found := r.routes[req.Method]; found {
 		for _, route := range routesForMethod {
-			if route := route.triggerMatching(req); route != nil {
+			if route := route.Match(req); route != nil {
 				return route
 			}
 		}
@@ -96,15 +103,15 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	req = setCurrentRoute(req, route)
 	req = setQueries(req)
 
-	if route.hasVars() {
-		req = setVars(req, route.extractVars(req))
+	if route.HasVars() {
+		req = setVars(req, route.ExtractVars(req))
 	}
 
-	if route.handler == nil {
-		route.handler = r.notFoundHandler()
+	if !route.HasHandler() {
+		route.Handler(r.notFoundHandler())
 	}
 
-	route.handler.ServeHTTP(w, req)
+	route.GetHandler().ServeHTTP(w, req)
 }
 
 func (r *Router) notFoundHandler() http.Handler {
@@ -136,19 +143,14 @@ func cleanPath(p string) string {
 }
 
 // NewRoute registers an empty route.
-func (r *Router) NewRoute() *Route {
-	route := &Route{
-		router:      r,
-		ms:          matchers([]Matcher{}),
-		varIndexies: map[string]int{},
-	}
-	return route
+func (r *Router) NewRoute() RouteInterface {
+	return r.constructRoute(r)
 }
 
 // RegisterRoute registers a new route
-func (r *Router) RegisterRoute(method string, route *Route) *Route {
+func (r *Router) RegisterRoute(method string, route RouteInterface) RouteInterface {
 
-	route.methodName = method
+	route.SetMethodName(method)
 
 	for _, validatorKey := range []string{"method", "path"} {
 		if validator, found := r.Validatoren[validatorKey]; found {
@@ -156,7 +158,7 @@ func (r *Router) RegisterRoute(method string, route *Route) *Route {
 			err := validator.Validate(route)
 
 			if err != nil {
-				route.err = newBadRouteError(route, err.Error())
+				route.SetError(NewBadRouteError(route, err.Error()))
 				break
 			}
 		}
@@ -167,49 +169,51 @@ func (r *Router) RegisterRoute(method string, route *Route) *Route {
 
 // Handle registers a new route with a matcher for the URL path.
 // See Route.Path() and Route.Handler().
-func (r *Router) Handle(method string, path string, handler http.Handler) *Route {
-	return r.RegisterRoute(method, r.NewRoute().Path(path).Handler(handler))
+func (r *Router) Handle(method string, path string, handler http.Handler) RouteInterface {
+	route := r.NewRoute()
+	route.Path(path).Handler(handler)
+	return r.RegisterRoute(method, route)
 }
 
 // HandleFunc registers a new route with a matcher for the URL path.
 // See Route.Path() and Route.HandlerFunc().
-func (r *Router) HandleFunc(method string, path string, HandlerFunc func(http.ResponseWriter, *http.Request)) *Route {
+func (r *Router) HandleFunc(method string, path string, HandlerFunc func(http.ResponseWriter, *http.Request)) RouteInterface {
 	return r.RegisterRoute(method, r.NewRoute().Path(path).HandlerFunc(HandlerFunc))
 }
 
 // Get registers a new get route for the URL path
 // See Route.Path() and Route.Handler()
-func (r *Router) Get(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
+func (r *Router) Get(path string, handlerFunc func(http.ResponseWriter, *http.Request)) RouteInterface {
 	return r.RegisterRoute(http.MethodGet, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
 // Put registers a new put route for the URL path
 // See Route.Path() and Route.Handler()
-func (r *Router) Put(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
+func (r *Router) Put(path string, handlerFunc func(http.ResponseWriter, *http.Request)) RouteInterface {
 	return r.RegisterRoute(http.MethodPut, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
 // Post registers a new post route for the URL path
 // See Route.Path() and Route.Handler()
-func (r *Router) Post(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
+func (r *Router) Post(path string, handlerFunc func(http.ResponseWriter, *http.Request)) RouteInterface {
 	return r.RegisterRoute(http.MethodPost, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
 // Delete registers a new delete route for the URL path
 // See Route.Path() and Route.Handler()
-func (r *Router) Delete(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
+func (r *Router) Delete(path string, handlerFunc func(http.ResponseWriter, *http.Request)) RouteInterface {
 	return r.RegisterRoute(http.MethodDelete, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
 // Options registers a new options route for the URL path
 // See Route.Path() and Route.Handler()
-func (r *Router) Options(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
+func (r *Router) Options(path string, handlerFunc func(http.ResponseWriter, *http.Request)) RouteInterface {
 	return r.RegisterRoute(http.MethodOptions, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
 // Head registers a new  head route for the URL path
 // See Route.Path() and Route.Handler()
-func (r *Router) Head(path string, handlerFunc func(http.ResponseWriter, *http.Request)) *Route {
+func (r *Router) Head(path string, handlerFunc func(http.ResponseWriter, *http.Request)) RouteInterface {
 	return r.RegisterRoute(http.MethodHead, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
@@ -256,7 +260,7 @@ func (r *Router) HasErrors() (bool, []error) {
 func (r *Router) SortRoutes() {
 	for _, v := range r.routes {
 		for _, vv := range v {
-			sort.Sort(vv.ms)
+			sort.Sort(vv.GetMatchers())
 		}
 		sort.Sort(v)
 	}
@@ -264,7 +268,7 @@ func (r *Router) SortRoutes() {
 
 // implements the sort interface (len, swap, less)
 // see sort.Sort (Standard Library)
-type routes []*Route
+type routes []RouteInterface
 
 func (r routes) Len() int {
 	return len(r)
@@ -274,5 +278,5 @@ func (r routes) Swap(i, j int) {
 	r[i], r[j] = r[j], r[i]
 }
 func (r routes) Less(i, j int) bool {
-	return r[i].kind < r[j].kind
+	return r[i].Kind() < r[j].Kind()
 }

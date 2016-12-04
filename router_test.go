@@ -296,7 +296,7 @@ func testRoute(rt routeTest) (int, bool) {
 		}
 	}
 
-	r := NewRouter()
+	r := Classic()
 	rt.route(r, rt.path, rt.method, handler)
 
 	req, _ := http.NewRequest(rt.method, "http://localhost"+rt.path, nil)
@@ -332,7 +332,7 @@ func TestRouteNotfound(t *testing.T) {
 
 	for _, method := range methods {
 		t.Run(fmt.Sprintf("Method: %s", method), func(t *testing.T) {
-			r := NewRouter()
+			r := Classic()
 			req, _ := http.NewRequest(method, "http://localhost/echo", nil)
 			res := httptest.NewRecorder()
 			r.ServeHTTP(res, req)
@@ -359,7 +359,7 @@ func TestRouteWithoutHandler(t *testing.T) {
 
 	for _, method := range methods {
 		t.Run(fmt.Sprintf("Method: %s", method), func(t *testing.T) {
-			r := NewRouter()
+			r := Classic()
 			r.RegisterRoute(method, r.NewRoute().Path("/echo"))
 			req, _ := http.NewRequest(method, "http://localhost/echo", nil)
 			res := httptest.NewRecorder()
@@ -408,7 +408,7 @@ func TestSortsRoutes(t *testing.T) {
 
 	routes := r.routes[http.MethodGet]
 
-	if routes[len(routes)-1].kind != kindRegexPath || routes[2].kind != kindVarsPath || routes[0].kind != kindNormalPath {
+	if routes[len(routes)-1].Kind() != kindRegexPath || routes[2].Kind() != kindVarsPath || routes[0].Kind() != kindNormalPath {
 		t.Errorf("Sort of routes is bad")
 	}
 }
