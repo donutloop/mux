@@ -42,7 +42,7 @@ Status: Alpha (Not ready for production)
     )
 
     func main() {
-        r := mux.NewRouter()
+        r := mux.Classic()
 
         r.HandleFunc(http.MethodGet, "/home", homeHandler)
         
@@ -86,7 +86,7 @@ Status: Alpha (Not ready for production)
     )
 
     func main() {
-        r := mux.NewRouter()
+        r := mux.Classic()
 
         r.HandleFunc(http.MethodPost, "/user/create", userHandler)
         
@@ -130,7 +130,7 @@ Status: Alpha (Not ready for production)
     )
 
     func main() {
-        r := mux.NewRouter()
+        r := mux.Classic()
         
         r.Get("/home", homeHandler).Schemes("https")
         
@@ -165,7 +165,7 @@ Status: Alpha (Not ready for production)
     )
 
     func main() {
-        r := mux.NewRouter()
+        r := mux.Classic()
         
         r.Post("/user/update/:number", userHandler)
 
@@ -202,7 +202,7 @@ Status: Alpha (Not ready for production)
     )
 
     func main() {
-        r := mux.NewRouter()
+        r := mux.Classic()
         
         //URL: http://localhost:8080/users?limit=10
         r.Get("/users", userHandler)

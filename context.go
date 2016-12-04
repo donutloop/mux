@@ -27,9 +27,9 @@ func GetQueries(r *http.Request) queries {
 // This only works when called inside the handler of the matched route
 // because the matched route is stored in the request context which is cleared
 // after the handler returns
-func CurrentRoute(r *http.Request) *Route {
+func CurrentRoute(r *http.Request) RouteInterface {
 	if rv := contextGet(r, routeKey); rv != nil {
-		return rv.(*Route)
+		return rv.(RouteInterface)
 	}
 	return nil
 }
@@ -44,9 +44,9 @@ func setCurrentRoute(r *http.Request, val interface{}) *http.Request {
 }
 
 // GetVars returns the route variables for the current request, if any.
-func GetVars(r *http.Request) vars {
+func GetVars(r *http.Request) Vars {
 	if rv := contextGet(r, varsKey); rv != nil {
-		return rv.(vars)
+		return rv.(Vars)
 	}
 	return nil
 }

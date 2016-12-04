@@ -13,7 +13,7 @@ func TestNewBadRouteError(t *testing.T) {
 		path:       "/api/user",
 	}
 
-	err := newBadRouteError(r, "Something went wrong")
+	err := NewBadRouteError(r, "Something went wrong")
 
 	if err == nil || !strings.Contains(err.Error(), "Something went wrong") {
 		t.Errorf("Bad error message (%v)", err.Error())
@@ -26,7 +26,7 @@ func TestSortMatchers(t *testing.T) {
 	}
 	mf := MatcherFunc(matcherFunc)
 
-	ms := matchers([]Matcher{})
+	ms := Matchers([]Matcher{})
 	ms = append(ms, newSchemeMatcher("https"), pathMatcher("/api/"), mf)
 	sort.Sort(ms)
 

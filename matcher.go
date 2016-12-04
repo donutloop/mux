@@ -58,7 +58,7 @@ func (m headerRegexMatcher) Rank() int {
 	return rankAny
 }
 
-// MatcherFunc is the function signature used by custom matchers.
+// MatcherFunc is the function signature used by custom Matchers.
 type MatcherFunc func(*http.Request) bool
 
 // Match returns the match for a given request.
@@ -173,4 +173,20 @@ func (m pathRegexMatcher) Match(r *http.Request) bool {
 
 func (m pathRegexMatcher) Rank() int {
 	return rankPath
+}
+
+// implements the sort interface (len, swap, less)
+// see sort.Sort (Standard Library)
+type Matchers []Matcher
+
+func (m Matchers) Len() int {
+	return len(m)
+}
+
+func (m Matchers) Swap(i, j int) {
+	m[i], m[j] = m[j], m[i]
+}
+
+func (m Matchers) Less(i, j int) bool {
+	return m[i].Rank() < m[j].Rank()
 }
