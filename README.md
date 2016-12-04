@@ -25,7 +25,7 @@ it's supports variables and regex in the routing pattern and matches against the
 * Routes are sorted
 * Context support
 
-## Feature are welcome
+## Feature request are welcome
 
 ## Example (Method GET):
 
