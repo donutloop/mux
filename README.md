@@ -2,9 +2,10 @@
 
 # What is mux ?
 
-Mux is a lightweight and fast HTTP Multiplexer for Golang >= 1.7
+mux is a lightweight fast HTTP request router (also called multiplexer or just mux for short) for Go 1.7.
 
-Status: Alpha (Not ready for production)
+The difference between the default mux of Go's net/http package and this mux is,
+it's supports variables and regex in the routing pattern and matches against the request method. It also scales better.
 
 ## Features:
 
@@ -24,9 +25,7 @@ Status: Alpha (Not ready for production)
 * Routes are sorted
 * Context support
 
-## Roadmap
-
-* HeaderRegex Matcher
+## Feature are welcome
 
 ## Example (Method GET):
 
