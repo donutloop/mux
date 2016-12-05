@@ -79,10 +79,7 @@ type comparison interface {
 type stringComparison string
 
 func (sc stringComparison) compare(value string) bool {
-	if string(sc) == value {
-		return true
-	}
-	return false
+	return string(sc) == value
 }
 
 func (sc stringComparison) isNotEmpty() bool {
@@ -94,10 +91,7 @@ type regexComparsion struct {
 }
 
 func (rc regexComparsion) compare(value string) bool {
-	if rc.r.MatchString(value) {
-		return true
-	}
-	return false
+	return rc.r.MatchString(value)
 }
 
 func (rc regexComparsion) isNotEmpty() bool {

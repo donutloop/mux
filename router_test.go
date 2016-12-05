@@ -188,7 +188,7 @@ func TestPath(t *testing.T) {
 			method:     http.MethodGet,
 			statusCode: http.StatusOK,
 			kind:       "HandlerFunc",
-			queries:    map[string][]string{"limit": []string{"10"}},
+			queries:    map[string][]string{"limit": {"10"}},
 			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
 				r.HandleFunc(method, "/api/artcile", handler)
 			},

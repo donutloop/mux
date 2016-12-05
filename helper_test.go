@@ -95,7 +95,7 @@ func TestMatchMap(t *testing.T) {
 	}
 
 	toCompare := map[string][]string{
-		"content-type": []string{
+		"content-type": {
 			"application/json",
 		},
 	}
