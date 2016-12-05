@@ -257,16 +257,16 @@ func TestPath(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("Test: %s path: %s method %s kind: %s", test.title, test.path, test.method, test.kind), func(t *testing.T) {
-			code, ok := testRoute(test)
+			code, message, ok := testRoute(test)
 
 			if !ok {
-				t.Errorf("Expected status code %v, Actucal status code %v", test.statusCode, code)
+				t.Errorf("Expected status code %v, Actucal status code %v, Actucal message %v", test.statusCode, code, message)
 			}
 		})
 	}
 }
 
-func testRoute(rt routeTest) (int, bool) {
+func testRoute(rt routeTest) (int, string, bool) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 
 		okQueries := true
@@ -281,6 +281,11 @@ func testRoute(rt routeTest) (int, bool) {
 			if !reflect.DeepEqual(rt.vars, GetVars(r).GetAll()) {
 				okVars = false
 			}
+		}
+
+		if route := CurrentRoute(r); route == nil {
+			w.Write([]byte(fmt.Sprintf("unsuccesfully (Context route : %v )", route)))
+			return
 		}
 
 		if nil != rt.queries && nil != rt.vars && okVars && okQueries {
@@ -307,14 +312,14 @@ func testRoute(rt routeTest) (int, bool) {
 	_, err := io.Copy(&content, res.Body)
 
 	if err != nil {
-		return -1, false
+		return -1, "", false
 	}
 
 	if res.Code != rt.statusCode || content.String() != "succesfully" {
-		return res.Code, false
+		return res.Code, content.String(), false
 	}
 
-	return res.Code, true
+	return res.Code, content.String(), true
 }
 
 func TestRouteNotfound(t *testing.T) {
