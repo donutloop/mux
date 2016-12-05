@@ -473,22 +473,27 @@ func TestRouterWithMultiRoutes(t *testing.T) {
 
 	server := httptest.NewServer(router)
 
-	for path, pathInfo := range paths {
-		res, err := http.Get(server.URL + pathInfo.path)
+	for rawPath, pathInfo := range paths {
+		url := server.URL + pathInfo.path
+		t.Run(fmt.Sprintf("RawPath: %s, Path: %s Url: %s", rawPath, pathInfo.path, url), func(t *testing.T) {
+			res, err := http.Get(url)
 
-		if err != nil {
-			t.Errorf("Unexpected error (%s)", err.Error())
-		}
+			if err != nil {
+				t.Errorf("Unexpected error (%s)", err.Error())
+			}
 
-		var content bytes.Buffer
-		_, err = io.Copy(&content, res.Body)
+			var content bytes.Buffer
+			_, err = io.Copy(&content, res.Body)
 
-		if err != nil {
-			t.Errorf("Unexpected error (%s)", err.Error())
-		}
+			if err != nil {
+				t.Errorf("Unexpected error (%s)", err.Error())
+			}
 
-		if content.String() != pathInfo.key {
-			t.Errorf("Path %s: Unexpected path key (Expected path key: %s, Actucal path key %s)", path, pathInfo.key, content.String())
-		}
+			defer res.Body.Close()
+
+			if content.String() != pathInfo.key {
+				t.Errorf("Path %s: Unexpected path key (Expected path key: %s, Actucal path key %s)", rawPath, pathInfo.key, content.String())
+			}
+		})
 	}
 }
