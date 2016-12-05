@@ -413,7 +413,82 @@ func TestSortsRoutes(t *testing.T) {
 
 	routes := r.routes[http.MethodGet]
 
-	if routes[len(routes)-1].Kind() != kindRegexPath || routes[2].Kind() != kindVarsPath || routes[0].Kind() != kindNormalPath {
+	if routes[len(routes)-1].Kind() != kindNormalPath || routes[len(routes)-3].Kind() != kindVarsPath || routes[0].Kind() != kindRegexPath {
 		t.Errorf("Sort of routes is bad")
+	}
+}
+
+func TestRouterWithMultiRoutes(t *testing.T) {
+	router := Classic()
+
+	handler := func(key string) func(w http.ResponseWriter, r *http.Request) {
+		return func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte(key))
+		}
+	}
+
+	paths := map[string]struct {
+		key  string
+		path string
+	}{
+		"/api/user/:number/comment/:number": {
+			key:  "0",
+			path: "/api/user/1/comment/1",
+		},
+		"/api/echo": {
+			key:  "1",
+			path: "/api/echo",
+		},
+		"/api/user/:number": {
+			key:  "2",
+			path: "/api/user/1",
+		},
+		"/api/user/:string": {
+			key:  "3",
+			path: "/api/user/donutloop",
+		},
+		"/api/user/#([5-9]{1,1})": {
+			key:  "4",
+			path: "/api/user/6",
+		},
+		"/api/article/#([a-z]{1,})": {
+			key:  "6",
+			path: "/api/article/golang",
+		},
+		"/api/article/#([0-9]{1,1})": {
+			key:  "7",
+			path: "/api/article/7",
+		},
+		"/api/article/#(9[0-9]{1,})": {
+			key:  "8",
+			path: "/api/article/97",
+		},
+	}
+
+	for path, pathInfo := range paths {
+		router.Get(path, handler(pathInfo.key))
+	}
+
+	router.SortRoutes()
+
+	server := httptest.NewServer(router)
+
+	for path, pathInfo := range paths {
+		res, err := http.Get(server.URL + pathInfo.path)
+
+		if err != nil {
+			t.Errorf("Unexpected error (%s)", err.Error())
+		}
+
+		var content bytes.Buffer
+		_, err = io.Copy(&content, res.Body)
+
+		if err != nil {
+			t.Errorf("Unexpected error (%s)", err.Error())
+		}
+
+		if content.String() != pathInfo.key {
+			t.Errorf("Path %s: Unexpected path key (Expected path key: %s, Actucal path key %s)", path, pathInfo.key, content.String())
+		}
 	}
 }

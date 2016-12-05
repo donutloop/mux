@@ -278,5 +278,5 @@ func (r routes) Swap(i, j int) {
 	r[i], r[j] = r[j], r[i]
 }
 func (r routes) Less(i, j int) bool {
-	return r[i].Kind() < r[j].Kind()
+	return r[i].Kind() > r[j].Kind()
 }
