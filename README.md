@@ -43,14 +43,19 @@ it's supports variables and regex in the routing pattern and matches against the
     func main() {
         r := mux.Classic()
 
+        //URL: https://localhost:8080/home
         r.HandleFunc(http.MethodGet, "/home", homeHandler)
         
+        //URL: https://localhost:8080/home-1
         r.Handle(http.MethodGet, "/home-1", http.HandlerFunc(homeHandler))
         
+        //URL: https://localhost:8080/home-2
         r.Get("/home-2", homeHandler)
         
+        //URL: https://localhost:8080/home-3
         r.RegisterRoute(http.MethodGet, r.NewRoute().Path("/home-3").HandlerFunc(homeHandler))
         
+        //URL: https://localhost:8080/home-4
         r.RegisterRoute(http.MethodGet, r.NewRoute().Path("/home-4").Handler(http.HandlerFunc(homeHandler)))
         
     	errorHandler := func(errs []error) {
@@ -87,14 +92,19 @@ it's supports variables and regex in the routing pattern and matches against the
     func main() {
         r := mux.Classic()
 
+        //URL: https://localhost:8080/user/create
         r.HandleFunc(http.MethodPost, "/user/create", userHandler)
-        
+
+        //URL: https://localhost:8080/user-1/create
         r.Handle(http.MethodPost, "/user-1/create", http.HandlerFunc(userHandler))
-        
+
+        //URL: https://localhost:8080/user-2/create        
         r.Post("/user-2/create", userHandler)
 
+        //URL: https://localhost:8080/user-3/create
         r.RegisterRoute(http.MethodPost, r.NewRoute().Path("/user-3/create").HandlerFunc(userHandler))
-        
+
+        //URL: https://localhost:8080/user-4/create        
         r.RegisterRoute(http.MethodPost, r.NewRoute().Path("/user-4/create").Handler(http.HandlerFunc(userHandler)))
         
     	errorHandler := func(errs []error) {
@@ -131,6 +141,7 @@ it's supports variables and regex in the routing pattern and matches against the
     func main() {
         r := mux.Classic()
         
+        //URL: https://localhost:8080/home
         r.Get("/home", homeHandler).Schemes("https")
         
     	errorHandler := func(errs []error) {
@@ -166,6 +177,7 @@ it's supports variables and regex in the routing pattern and matches against the
     func main() {
         r := mux.Classic()
         
+        //URL: http://localhost:8080/user/update/1
         r.Post("/user/update/:number", userHandler)
 
     	errorHandler := func(errs []error) {
@@ -220,6 +232,42 @@ it's supports variables and regex in the routing pattern and matches against the
 
     func userHandler(rw http.ResponseWriter, req *http.Request) {
         limit := mux.GetQueries(req).Get("limit")[0]
+        //...
+    }
+```
+
+## Example (Method GET & Regex):
+
+```go
+    package main
+
+    import (
+        "net/http"
+        "fmt"
+        "os"
+
+        "github.com/donutloop/mux"
+    )
+
+    func main() {
+        r := mux.Classic()
+        
+        //URL: http://localhost:8080/user/1
+        r.Get("/user/#([0-9]){1,}", userHandler)
+
+    	errorHandler := func(errs []error) {
+            for _ , err := range errs {
+                fmt.Print(err)
+            }
+            if 0 != len(errs) {
+                os.Exit(2)
+            }
+	    }
+
+        r.ListenAndServe(":8080", errorHandler)
+    }
+
+    func userHandler(rw http.ResponseWriter, req *http.Request) {
         //...
     }
 ```
