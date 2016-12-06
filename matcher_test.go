@@ -89,6 +89,80 @@ func TestPathMatcherFail(t *testing.T) {
 	}
 }
 
+func TestPathVarsMatcher(t *testing.T) {
+
+	paths := []struct {
+		pathRaw     string
+		pathToMatch string
+	}{
+		{
+			pathToMatch: "/user/:number",
+			pathRaw:     "/user/1",
+		},
+		{
+			pathToMatch: "/user/:number/comment/:number",
+			pathRaw:     "/user/1/comment/99",
+		},
+		{
+			pathToMatch: "/article/:string",
+			pathRaw:     "/article/golang",
+		},
+		{
+			pathToMatch: "/article/:string/comment/:number/subcomment/:number",
+			pathRaw:     "/article/golang/comment/4/subcomment/5",
+		},
+		{
+			pathToMatch: "/:number/:number/:number/:number/:number/:number/:number/:number/:number/:number",
+			pathRaw:     "/1/1/1/1/1/1/1/1/1/1",
+		},
+		{
+			pathToMatch: "/:string/:number/:string/:number/:string/:number/:string/:number/:string/:number",
+			pathRaw:     "/dummy/1/dummy/1/dummy/1/dummy/1/dummy/1",
+		},
+	}
+
+	for _, path := range paths {
+		t.Run(fmt.Sprintf("Path raw: %s, Path to match %s", path.pathRaw, path.pathToMatch), func(t *testing.T) {
+			matcher := newPathWithVarsMatcher(path.pathToMatch)
+			request := &http.Request{
+				URL: &url.URL{
+					Path: path.pathRaw,
+				},
+			}
+
+			if !matcher.Match(request) {
+				t.Errorf("Unexpected not matched path ")
+			}
+		})
+	}
+}
+
+func BenchmarkPathVarsMatcher(b *testing.B) {
+	matcher := pathMatcher("/:string/:number/:string/:number/:string/:number/:string/:number/:string/:number")
+	request := &http.Request{
+		URL: &url.URL{
+			Path: "/dummy/1/dummy/1/dummy/1/dummy/1/dummy/1",
+		},
+	}
+
+	for n := 0; n < b.N; n++ {
+		matcher.Match(request)
+	}
+}
+
+func TestPathVarsMatcherFail(t *testing.T) {
+	matcher := pathMatcher("/api/:number")
+	request := &http.Request{
+		URL: &url.URL{
+			Path: "/api/echo",
+		},
+	}
+
+	if matcher.Match(request) {
+		t.Errorf("Unexpected matched path")
+	}
+}
+
 func TestMatcherFunc(t *testing.T) {
 	matcherFunc := func(*http.Request) bool {
 		return true
