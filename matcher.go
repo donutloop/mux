@@ -99,11 +99,7 @@ func (m schemeMatcher) Rank() int {
 type pathMatcher string
 
 func (m pathMatcher) Match(r *http.Request) bool {
-	if strings.Compare(string(m), r.URL.Path) == 0 {
-		return true
-	}
-
-	return false
+	return strings.Compare(string(m), r.URL.Path) == 0
 }
 
 func (m pathMatcher) Rank() int {
@@ -120,10 +116,10 @@ func newPathWithVarsMatcher(path string) pathWithVarsMatcher {
 Loop:
 	for {
 		switch {
-		case strings.Contains(path, ":number") == true:
+		case strings.Contains(path, ":number"):
 			path = strings.Replace(path, ":number", "([0-9]{1,})", -1)
 			continue
-		case strings.Contains(path, ":string") == true:
+		case strings.Contains(path, ":string"):
 			path = strings.Replace(path, ":string", "([a-zA-Z]{1,})", -1)
 			continue
 		default:
@@ -142,12 +138,7 @@ func (m pathWithVarsMatcher) Rank() int {
 }
 
 func (m pathWithVarsMatcher) Match(r *http.Request) bool {
-
-	if m.regex.MatchString(r.URL.Path) {
-		return true
-	}
-
-	return false
+	return m.regex.MatchString(r.URL.Path)
 }
 
 //pathWithVarsMatcher matches the request against a URL path.
@@ -163,12 +154,7 @@ func newPathRegexMatcher(path string) pathRegexMatcher {
 }
 
 func (m pathRegexMatcher) Match(r *http.Request) bool {
-
-	if m.regex.MatchString(r.URL.Path) {
-		return true
-	}
-
-	return false
+	return m.regex.MatchString(r.URL.Path)
 }
 
 func (m pathRegexMatcher) Rank() int {

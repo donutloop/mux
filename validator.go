@@ -17,14 +17,14 @@ func newMethodValidator() MethodValidator {
 
 // methods all possible standard methods
 var methods = map[string]struct{}{
-	http.MethodGet:     struct{}{},
-	http.MethodPost:    struct{}{},
-	http.MethodPatch:   struct{}{},
-	http.MethodDelete:  struct{}{},
-	http.MethodHead:    struct{}{},
-	http.MethodPut:     struct{}{},
-	http.MethodOptions: struct{}{},
-	http.MethodConnect: struct{}{},
+	http.MethodGet:     {},
+	http.MethodPost:    {},
+	http.MethodPatch:   {},
+	http.MethodDelete:  {},
+	http.MethodHead:    {},
+	http.MethodPut:     {},
+	http.MethodOptions: {},
+	http.MethodConnect: {},
 }
 
 func (v MethodValidator) Validate(r RouteInterface) error {

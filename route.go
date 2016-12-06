@@ -82,10 +82,7 @@ func (r *Route) Match(req *http.Request) RouteInterface {
 
 // HasHandler returns ture if route has a handler.
 func (r *Route) HasHandler() bool {
-	if r.handler == nil {
-		return false
-	}
-	return true
+	return r.handler != nil
 }
 
 // GetHandler returns the handler for the route, if any.
@@ -102,11 +99,7 @@ func (r *Route) Handler(h http.Handler) {
 
 // HasError check if an error exists.
 func (r *Route) HasError() bool {
-	if r.err == nil {
-		return false
-	}
-
-	return true
+	return r.err != nil
 }
 
 // GetError returns an error resulted from building the route
@@ -233,10 +226,7 @@ func (r *Route) extractVarsIndexies(prefix string, path string) {
 
 //HasVars check if path has any vars
 func (r *Route) HasVars() bool {
-	if 0 == len(r.varIndexies) {
-		return false
-	}
-	return true
+	return len(r.varIndexies) != 0
 }
 
 type Vars map[string]string
