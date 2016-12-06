@@ -2,6 +2,7 @@ package mux
 
 import (
 	"net/http"
+	"net/url"
 	"testing"
 )
 
@@ -26,5 +27,17 @@ func TestGetVarsFail(t *testing.T) {
 
 	if value := GetVars(r); value != nil {
 		t.Errorf("Unexpected value (%v)", value)
+	}
+}
+
+func BenchmarkExtractQueries(b *testing.B) {
+	request := &http.Request{
+		URL: &url.URL{
+			RawQuery: "limit=10&offset=10&gender=female&age[0]=20&age[0]=50",
+		},
+	}
+
+	for n := 0; n < b.N; n++ {
+		extractQueries(request)
 	}
 }
