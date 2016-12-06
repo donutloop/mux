@@ -15,7 +15,7 @@ const (
 	varsKey
 )
 
-// GetQueries returns the query variables for the current request, if any.
+// GetQueries returns the query variables for the current request.
 func GetQueries(r *http.Request) queries {
 	if rv := contextGet(r, queriesKey); rv != nil {
 		return rv.(queries)
@@ -23,7 +23,7 @@ func GetQueries(r *http.Request) queries {
 	return nil
 }
 
-// CurrentRoute returns the matched route for the current request, if any.
+// CurrentRoute returns the matched route for the current request.
 // This only works when called inside the handler of the matched route
 // because the matched route is stored in the request context which is cleared
 // after the handler returns

@@ -95,7 +95,7 @@ func (m schemeMatcher) Rank() int {
 	return rankScheme
 }
 
-//pathMatcher matches the request against a URL path.
+// pathMatcher matches the request against a URL path.
 type pathMatcher string
 
 func (m pathMatcher) Match(r *http.Request) bool {
@@ -110,7 +110,7 @@ func (m pathMatcher) Rank() int {
 	return rankPath
 }
 
-//pathWithVarsMatcher matches the request against a URL path.
+// pathWithVarsMatcher matches the request against a URL path.
 type pathWithVarsMatcher struct {
 	regex *regexp.Regexp
 }
@@ -175,7 +175,7 @@ func (m pathRegexMatcher) Rank() int {
 	return rankPath
 }
 
-// implements the sort interface (len, swap, less)
+// Matchers implements the sort interface (len, swap, less)
 // see sort.Sort (Standard Library)
 type Matchers []Matcher
 

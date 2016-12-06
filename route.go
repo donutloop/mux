@@ -54,7 +54,7 @@ type Route struct {
 	router *Router
 }
 
-// NewRouter returns a new route instance.
+// NewRoute returns a new route instance.
 func newRoute(router *Router) RouteInterface {
 	return &Route{
 		router:      router,
@@ -64,6 +64,7 @@ func newRoute(router *Router) RouteInterface {
 }
 
 // Match matches the route against the request.
+// if match is successfully then return route else return nil
 func (r *Route) Match(req *http.Request) RouteInterface {
 	if r.err != nil {
 		return nil
@@ -92,7 +93,7 @@ func (r *Route) GetHandler() http.Handler {
 	return r.handler
 }
 
-// SetHandler sets a handler for the route.
+// Handler sets a handler for the route.
 func (r *Route) Handler(h http.Handler) {
 	if r.err == nil {
 		r.handler = h
@@ -108,12 +109,12 @@ func (r *Route) HasError() bool {
 	return true
 }
 
-// GetError returns an error resulted from building the route, if any.
+// GetError returns an error resulted from building the route
 func (r *Route) GetError() error {
 	return r.err
 }
 
-// SetError set an error if any.
+// SetError set an error (Resulted from building).
 func (r *Route) SetError(err error) {
 	r.err = err
 }
@@ -154,7 +155,7 @@ func (r *Route) Name(name string) *Route {
 	return r
 }
 
-// GetName returns the name for the route, if any.
+// GetName returns the name for the route.
 func (r *Route) GetName() string {
 	return r.name
 }
@@ -174,6 +175,8 @@ func (r *Route) addMatcher(m Matcher) RouteInterface {
 //
 //     r := mux.Classic()
 //     r.Path("/billing/").Handler(BillingHandler)
+//     r.Path("/user/:number/comment/:string").Handler(commentHandler)
+//     r.Path("/article/#([a-z]{,10})").Handler(articleHandler)
 //
 func (r *Route) Path(path string) RouteInterface {
 
@@ -201,7 +204,7 @@ func (r *Route) Path(path string) RouteInterface {
 	return r
 }
 
-//GetPath returns the handler for the route, if any.
+//GetPath returns the handler for the route.
 func (r *Route) GetPath() string {
 	return r.path
 }
@@ -274,12 +277,21 @@ func (r *Route) Schemes(schemes ...string) RouteInterface {
 // Headers adds a matcher for request header values.
 // It accepts a sequence of key/value pairs to be matched. For example:
 //
-//     r := mux.Classic()
-//     r.Headers("Content-Type", "application/json",
-//               "X-Requested-With", "XMLHttpRequest")
+// For example:
 //
-// The above route will only match if both request header values match.
-// If the value is an empty string, it will match any value if the key is set.
+//     r := mux.Classic()
+//     r.Headers("Content-Type", "application/json", "X-Requested-With", "XMLHttpRequest")
+//
+// Invaild example:
+//
+// 		r := mux.Classic()
+//  	r.Headers("Content-Type")
+//
+//
+// The first example will only match if both request header values match.
+// the second example will never match because the count of key/value is odd.
+//
+// If one of the value is an empty string, it will match any value if the key is set.
 func (r *Route) Headers(pairs ...string) RouteInterface {
 	if r.err != nil {
 		return r
@@ -299,11 +311,21 @@ func (r *Route) Headers(pairs ...string) RouteInterface {
 // HeadersRegex adds a matcher for request header values.
 // It accepts a sequence of key/value pairs to be matched. For example:
 //
+// For example:
+//
 //     r := mux.Classic()
 //     r.Headers("Content-Type", "application/(json|html)")
 //
-// The above route will only match if both request header values match.
-// If the value is an empty string, it will match any value if the key is set.
+// Invaild example:
+//
+//  	r := mux.Classic()
+//  	r.Headers("Content-Type")
+//
+//
+// The first example will only match if both request header values match.
+// the second example will never match because the count of key/value is odd.
+//
+// If one of the value is an empty string, it will match any value if the key is set.
 func (r *Route) HeadersRegex(pairs ...string) RouteInterface {
 	if r.err != nil {
 		return r

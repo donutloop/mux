@@ -49,12 +49,12 @@ type Router struct {
 	constructRoute func(*Router) RouteInterface
 }
 
-//UseRoute that you can use diffrent instances routes
+// UseRoute that you can use diffrent instances routes
 func (r *Router) UseRoute(constructer func(*Router) RouteInterface) {
 	r.constructRoute = constructer
 }
 
-// Match matches registered routes against the request.
+// triggerMatching matches registered routes against the request.
 func (r *Router) triggerMatching(req *http.Request) RouteInterface {
 
 	if routesForMethod, found := r.routes[req.Method]; found {
@@ -71,7 +71,10 @@ func (r *Router) triggerMatching(req *http.Request) RouteInterface {
 // ServeHTTP dispatches the handler registered in the matched route.
 //
 // When there is a match, the route variables can be retrieved calling
-// mux.Vars(request).
+// mux.GetVars(req).Get(":number") or mux.GetVars(req).GetAll()
+//
+// and the route queires can be retrieved calling
+// mux.GetQueries(req).Get(":number") or mux.GetQueries(req).GetAll()
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if !r.SkipClean {
 
@@ -147,7 +150,7 @@ func (r *Router) NewRoute() RouteInterface {
 	return r.constructRoute(r)
 }
 
-// RegisterRoute registers a new route
+// RegisterRoute registers and validates a new route
 func (r *Router) RegisterRoute(method string, route RouteInterface) RouteInterface {
 
 	route.SetMethodName(method)
@@ -182,37 +185,37 @@ func (r *Router) HandleFunc(method string, path string, HandlerFunc func(http.Re
 }
 
 // Get registers a new get route for the URL path
-// See Route.Path() and Route.Handler()
+// See Route.Path() and Route.HandlerFunc()
 func (r *Router) Get(path string, handlerFunc func(http.ResponseWriter, *http.Request)) RouteInterface {
 	return r.RegisterRoute(http.MethodGet, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
 // Put registers a new put route for the URL path
-// See Route.Path() and Route.Handler()
+// See Route.Path() and Route.HandlerFunc()
 func (r *Router) Put(path string, handlerFunc func(http.ResponseWriter, *http.Request)) RouteInterface {
 	return r.RegisterRoute(http.MethodPut, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
 // Post registers a new post route for the URL path
-// See Route.Path() and Route.Handler()
+// See Route.Path() and Route.HandlerFunc()
 func (r *Router) Post(path string, handlerFunc func(http.ResponseWriter, *http.Request)) RouteInterface {
 	return r.RegisterRoute(http.MethodPost, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
 // Delete registers a new delete route for the URL path
-// See Route.Path() and Route.Handler()
+// See Route.Path() and Route.HandlerFunc()
 func (r *Router) Delete(path string, handlerFunc func(http.ResponseWriter, *http.Request)) RouteInterface {
 	return r.RegisterRoute(http.MethodDelete, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
 // Options registers a new options route for the URL path
-// See Route.Path() and Route.Handler()
+// See Route.Path() and Route.HandlerFunc()
 func (r *Router) Options(path string, handlerFunc func(http.ResponseWriter, *http.Request)) RouteInterface {
 	return r.RegisterRoute(http.MethodOptions, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
 
 // Head registers a new  head route for the URL path
-// See Route.Path() and Route.Handler()
+// See Route.Path() and Route.HandlerFunc()
 func (r *Router) Head(path string, handlerFunc func(http.ResponseWriter, *http.Request)) RouteInterface {
 	return r.RegisterRoute(http.MethodHead, r.NewRoute().Path(path).HandlerFunc(handlerFunc))
 }
@@ -256,7 +259,7 @@ func (r *Router) HasErrors() (bool, []error) {
 	return hasError, errors
 }
 
-//SortRoutes sorts the Routes (Rank: RegexPath, PathWithVars, PathNormal)
+// SortRoutes sorts the routes (Rank: RegexPath, PathWithVars, PathNormal)
 func (r *Router) SortRoutes() {
 	for _, v := range r.routes {
 		for _, vv := range v {
@@ -266,7 +269,7 @@ func (r *Router) SortRoutes() {
 	}
 }
 
-// implements the sort interface (len, swap, less)
+// routes implements the sort interface (len, swap, less)
 // see sort.Sort (Standard Library)
 type routes []RouteInterface
 
