@@ -31,3 +31,15 @@ func TestMethodValidatorFail(t *testing.T) {
 		t.Errorf("Unexpected valid method (%s)", r.methodName)
 	}
 }
+
+func BenchmarkMethodValidaor(b *testing.B) {
+	validator := newMethodValidator()
+
+	route := &Route{
+		methodName: "GET",
+	}
+
+	for n := 0; n < b.N; n++ {
+		validator.Validate(route)
+	}
+}

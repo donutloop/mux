@@ -22,6 +22,19 @@ func TestSchemeMatcher(t *testing.T) {
 	}
 }
 
+func BenchmarkSchemeMatcher(b *testing.B) {
+	matcher := newSchemeMatcher("https", "http", "HTTP", "HTTPS")
+	request := &http.Request{
+		URL: &url.URL{
+			Scheme: "HTTPS",
+		},
+	}
+
+	for n := 0; n < b.N; n++ {
+		matcher.Match(request)
+	}
+}
+
 func TestSchemeMatcherFail(t *testing.T) {
 	schemes := []string{"http", "https"}
 	matcher := newSchemeMatcher("httpss")
@@ -47,6 +60,19 @@ func TestPathMatcher(t *testing.T) {
 
 	if !matcher.Match(request) {
 		t.Errorf("Unexpected not matched path ")
+	}
+}
+
+func BenchmarkPathMatcher(b *testing.B) {
+	matcher := pathMatcher("/api/user/2/article/4/comment/8")
+	request := &http.Request{
+		URL: &url.URL{
+			Path: "/api/user/2/article/4/comment/8",
+		},
+	}
+
+	for n := 0; n < b.N; n++ {
+		matcher.Match(request)
 	}
 }
 
@@ -90,24 +116,24 @@ func TestMatcherFuncFail(t *testing.T) {
 func TestHeaderMatcher(t *testing.T) {
 
 	tests := []struct {
-		title string
-		m     func(pairs ...string) (Matcher, error)
-		req   func() *http.Request
-		pairs []string
+		title   string
+		m       func(pairs ...string) (Matcher, error)
+		request func() *http.Request
+		pairs   []string
 	}{
 		{
 			title: "Test header match",
 			m: func(pairs ...string) (Matcher, error) {
 				return newHeaderMatcher(pairs...)
 			},
-			req: func() *http.Request {
+			request: func() *http.Request {
 
-				req := &http.Request{
+				request := &http.Request{
 					Header: http.Header{},
 				}
-				req.Header.Add("content-type", "applcation/json")
+				request.Header.Add("content-type", "applcation/json")
 
-				return req
+				return request
 			},
 			pairs: []string{"content-type", "applcation/json"},
 		},
@@ -116,14 +142,14 @@ func TestHeaderMatcher(t *testing.T) {
 			m: func(pairs ...string) (Matcher, error) {
 				return newHeaderRegexMatcher(pairs...)
 			},
-			req: func() *http.Request {
+			request: func() *http.Request {
 
-				req := &http.Request{
+				request := &http.Request{
 					Header: http.Header{},
 				}
-				req.Header.Add("content-type", "applcation/json")
+				request.Header.Add("content-type", "applcation/json")
 
-				return req
+				return request
 			},
 			pairs: []string{"content-type", "applcation/(json|html)"},
 		},
@@ -137,10 +163,56 @@ func TestHeaderMatcher(t *testing.T) {
 				t.Errorf("Unexpected error (%s)", err.Error())
 			}
 
-			req := test.req()
-			if !matcher.Match(req) {
-				t.Errorf("Unexpected not matched (%v)", req.Header)
+			request := test.request()
+			if !matcher.Match(request) {
+				t.Errorf("Unexpected not matched (%v)", request.Header)
 			}
 		})
+	}
+}
+
+func BenchmarkHeaderMatcher(b *testing.B) {
+	matcher, _ := newHeaderMatcher("content-type", "applcation/json")
+	request := &http.Request{
+		Header: http.Header{},
+	}
+
+	headers := map[string][]string{
+		"Accept": {
+			"text/plain",
+			"text/html",
+		},
+		"content-type": {
+			"applcation/json",
+		},
+		"Accept-Charset": {
+			"utf-8",
+		},
+		"Accept-Encoding": {
+			"gzip",
+			"deflate",
+		},
+		"Accept-Language": {
+			"en-US",
+		},
+		"Cache-Control": {
+			"no-cache",
+		},
+		"Date": {
+			"Date: Tue, 15 Nov 1994 08:12:31 GMT",
+		},
+		"Max-Forwards": {
+			"10",
+		},
+	}
+
+	for k, v := range headers {
+		for _, vv := range v {
+			request.Header.Add(k, vv)
+		}
+	}
+
+	for n := 0; n < b.N; n++ {
+		matcher.Match(request)
 	}
 }
