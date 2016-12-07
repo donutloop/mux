@@ -245,38 +245,87 @@ func TestHeaderMatcher(t *testing.T) {
 	}
 }
 
-func BenchmarkHeaderMatcher(b *testing.B) {
-	matcher, _ := newHeaderMatcher("content-type", "applcation/json")
-	request := &http.Request{
-		Header: http.Header{},
+func BenchmarkHeaderMatchers(b *testing.B) {
+
+	buildRequest := func() *http.Request {
+		return &http.Request{
+			Header: http.Header{},
+		}
 	}
 
-	headers := map[string][]string{
-		"Accept": {
-			"text/plain",
-			"text/html",
+	tests := []struct {
+		title        string
+		buildMatcher func() Matcher
+	}{
+		{
+			title: "Benchmark: Header matcher (single value)",
+			buildMatcher: func() Matcher {
+				matcher, _ := newHeaderMatcher("content-type", "applcation/json")
+				return matcher
+			},
 		},
+		{
+			title: "Benchmark: Header matcher (double value)",
+			buildMatcher: func() Matcher {
+				matcher, _ := newHeaderMatcher("content-type", "applcation/json")
+				return matcher
+			},
+		},
+		{
+			title: "Benchmark: Header regex matcher (single value)",
+			buildMatcher: func() Matcher {
+				matcher, _ := newHeaderRegexMatcher("content-type", "applcation/(json|html)", "accept", "text/(plain|html)")
+				return matcher
+			},
+		},
+		{
+			title: "Benchmark: Header regex matcher (double value)",
+			buildMatcher: func() Matcher {
+				matcher, _ := newHeaderRegexMatcher("content-type", "applcation/(json|html)", "accept", "text/(plain|html)")
+				return matcher
+			},
+		},
+	}
+
+	for _, test := range tests {
+		request := buildRequest()
+		populateHeaderWithTestData(request)
+		matcher := test.buildMatcher()
+		b.Run(test.title, func(b *testing.B) {
+			for n := 0; n < b.N; n++ {
+				matcher.Match(request)
+			}
+		})
+	}
+}
+
+func populateHeaderWithTestData(request *http.Request) {
+	headers := map[string][]string{
 		"content-type": {
 			"applcation/json",
 		},
-		"Accept-Charset": {
+		"accept-Charset": {
 			"utf-8",
 		},
-		"Accept-Encoding": {
+		"accept-Encoding": {
 			"gzip",
 			"deflate",
 		},
-		"Accept-Language": {
+		"accept-Language": {
 			"en-US",
 		},
-		"Cache-Control": {
+		"cache-Control": {
 			"no-cache",
 		},
-		"Date": {
+		"date": {
 			"Date: Tue, 15 Nov 1994 08:12:31 GMT",
 		},
-		"Max-Forwards": {
+		"max-Forwards": {
 			"10",
+		},
+		"accept": {
+			"text/plain",
+			"text/html",
 		},
 	}
 
@@ -284,9 +333,5 @@ func BenchmarkHeaderMatcher(b *testing.B) {
 		for _, vv := range v {
 			request.Header.Add(k, vv)
 		}
-	}
-
-	for n := 0; n < b.N; n++ {
-		matcher.Match(request)
 	}
 }
