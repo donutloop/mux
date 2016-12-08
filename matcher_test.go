@@ -7,6 +7,30 @@ import (
 	"testing"
 )
 
+func TestMatcherFunc(t *testing.T) {
+	matcherFunc := func(*http.Request) bool {
+		return true
+	}
+
+	matcher := MatcherFunc(matcherFunc)
+
+	if !matcher.Match(&http.Request{}) {
+		t.Errorf("Unexpected not matched")
+	}
+}
+
+func TestMatcherFuncFail(t *testing.T) {
+	matcherFunc := func(*http.Request) bool {
+		return false
+	}
+
+	matcher := MatcherFunc(matcherFunc)
+
+	if matcher.Match(&http.Request{}) {
+		t.Errorf("Unexpected matched")
+	}
+}
+
 func TestSchemeMatcher(t *testing.T) {
 	schemes := []string{"http", "https"}
 	matcher := newSchemeMatcher("https", "HTTP")
@@ -50,29 +74,150 @@ func TestSchemeMatcherFail(t *testing.T) {
 	}
 }
 
-func TestPathMatcher(t *testing.T) {
-	matcher := pathMatcher("/api/v2")
-	request := &http.Request{
-		URL: &url.URL{
-			Path: "/api/v2",
+func TestPathMatchers(t *testing.T) {
+
+	tests := []struct {
+		title        string
+		pathRaw      string
+		pathToMatch  string
+		buildMatcher func(string) Matcher
+	}{
+		{
+			title:       "Path noraml matcher ",
+			pathToMatch: "/api/echo",
+			pathRaw:     "/api/echo",
+			buildMatcher: func(path string) Matcher {
+				return pathMatcher(path)
+			},
+		},
+		{
+			title:       "Path vars matcher (one number var segment)",
+			pathToMatch: "/user/:number",
+			pathRaw:     "/user/1",
+			buildMatcher: func(path string) Matcher {
+				return newPathWithVarsMatcher(path)
+			},
+		},
+		{
+			title:       "Path vars matcher (two number var segments)",
+			pathToMatch: "/user/:number/comment/:number",
+			pathRaw:     "/user/1/comment/99",
+			buildMatcher: func(path string) Matcher {
+				return newPathWithVarsMatcher(path)
+			},
+		},
+		{
+			title:       "Path vars matcher (two string var segments)",
+			pathToMatch: "/article/:string",
+			pathRaw:     "/article/golang",
+			buildMatcher: func(path string) Matcher {
+				return newPathWithVarsMatcher(path)
+			},
+		},
+		{
+			title:       "Path vars matcher (one number and one string var segment)",
+			pathToMatch: "/article/:string/comment/:number/subcomment/:number",
+			pathRaw:     "/article/golang/comment/4/subcomment/5",
+			buildMatcher: func(path string) Matcher {
+				return newPathWithVarsMatcher(path)
+			},
+		},
+		{
+			title:       "Path vars matcher (many number var segments)",
+			pathToMatch: "/:number/:number/:number/:number/:number/:number/:number/:number/:number/:number",
+			pathRaw:     "/1/1/1/1/1/1/1/1/1/1",
+			buildMatcher: func(path string) Matcher {
+				return newPathWithVarsMatcher(path)
+			},
+		},
+		{
+			title:       "Path vars matcher (many number and string var segments)",
+			pathToMatch: "/:string/:number/:string/:number/:string/:number/:string/:number/:string/:number",
+			pathRaw:     "/dummy/1/dummy/1/dummy/1/dummy/1/dummy/1",
+			buildMatcher: func(path string) Matcher {
+				return newPathWithVarsMatcher(path)
+			},
+		},
+		{
+			title:       "Path regex matcher (many regex segments)",
+			pathToMatch: "/#([a-z]){1,}/#([0-9]){1,}/#([a-z]){1,}/#([0-9]){1,}/#([a-z]){1,}/#([0-9]){1,}/#([a-z]){1,}/#([0-9]){1,}/#([a-z]){1,}/#([0-9]){1,}",
+			pathRaw:     "/dummy/1/dummy/1/dummy/1/dummy/1/dummy/1",
+			buildMatcher: func(path string) Matcher {
+				return newPathRegexMatcher(path)
+			},
 		},
 	}
 
-	if !matcher.Match(request) {
-		t.Errorf("Unexpected not matched path ")
+	for _, test := range tests {
+		t.Run(fmt.Sprintf("Path raw: %s, Path to match %s "+test.title, test.pathRaw, test.pathToMatch), func(t *testing.T) {
+			matcher := test.buildMatcher(test.pathToMatch)
+			request := &http.Request{
+				URL: &url.URL{
+					Path: test.pathRaw,
+				},
+			}
+
+			if !matcher.Match(request) {
+				t.Errorf("Unexpected not matched path ")
+			}
+		})
 	}
 }
 
-func BenchmarkPathMatcher(b *testing.B) {
-	matcher := pathMatcher("/api/user/2/article/4/comment/8")
-	request := &http.Request{
-		URL: &url.URL{
-			Path: "/api/user/2/article/4/comment/8",
+func BenchmarkPathMatchers(b *testing.B) {
+
+	benchmarks := []struct {
+		title        string
+		pathRaw      string
+		pathToMatch  string
+		buildMatcher func(string) Matcher
+	}{
+		{
+			title:       "Path noraml matcher (2 URL segments)",
+			pathToMatch: "/api/echo",
+			pathRaw:     "/api/echo",
+			buildMatcher: func(path string) Matcher {
+				return pathMatcher(path)
+			},
+		},
+		{
+			title:       "Path noraml matcher (7 URL segments)",
+			pathToMatch: "/api/user/2/article/4/comment/8",
+			pathRaw:     "/api/user/2/article/4/comment/8",
+			buildMatcher: func(path string) Matcher {
+				return pathMatcher(path)
+			},
+		},
+		{
+			title:       "Path vars matcher (many vars segments)",
+			pathToMatch: "/:string/:number/:string/:number/:string/:number/:string/:number/:string/:number",
+			pathRaw:     "/user/1",
+			buildMatcher: func(path string) Matcher {
+				return newPathWithVarsMatcher(path)
+			},
+		},
+		{
+			title:       "Path regex matcher (many regex segments)",
+			pathToMatch: "/#([a-z]){1,}/#([0-9]){1,}/#([a-z]){1,}/#([0-9]){1,}/#([a-z]){1,}/#([0-9]){1,}/#([a-z]){1,}/#([0-9]){1,}/#([a-z]){1,}/#([0-9]){1,}",
+			pathRaw:     "/dummy/1/dummy/1/dummy/1/dummy/1/dummy/1",
+			buildMatcher: func(path string) Matcher {
+				return newPathRegexMatcher(path)
+			},
 		},
 	}
 
-	for n := 0; n < b.N; n++ {
-		matcher.Match(request)
+	for _, benchmark := range benchmarks {
+		matcher := benchmark.buildMatcher(benchmark.pathToMatch)
+		request := &http.Request{
+			URL: &url.URL{
+				Path: benchmark.pathRaw,
+			},
+		}
+		b.Run(benchmark.title, func(b *testing.B) {
+			for n := 0; n < b.N; n++ {
+				matcher.Match(request)
+			}
+		})
 	}
 }
 
@@ -89,67 +234,6 @@ func TestPathMatcherFail(t *testing.T) {
 	}
 }
 
-func TestPathVarsMatcher(t *testing.T) {
-
-	paths := []struct {
-		pathRaw     string
-		pathToMatch string
-	}{
-		{
-			pathToMatch: "/user/:number",
-			pathRaw:     "/user/1",
-		},
-		{
-			pathToMatch: "/user/:number/comment/:number",
-			pathRaw:     "/user/1/comment/99",
-		},
-		{
-			pathToMatch: "/article/:string",
-			pathRaw:     "/article/golang",
-		},
-		{
-			pathToMatch: "/article/:string/comment/:number/subcomment/:number",
-			pathRaw:     "/article/golang/comment/4/subcomment/5",
-		},
-		{
-			pathToMatch: "/:number/:number/:number/:number/:number/:number/:number/:number/:number/:number",
-			pathRaw:     "/1/1/1/1/1/1/1/1/1/1",
-		},
-		{
-			pathToMatch: "/:string/:number/:string/:number/:string/:number/:string/:number/:string/:number",
-			pathRaw:     "/dummy/1/dummy/1/dummy/1/dummy/1/dummy/1",
-		},
-	}
-
-	for _, path := range paths {
-		t.Run(fmt.Sprintf("Path raw: %s, Path to match %s", path.pathRaw, path.pathToMatch), func(t *testing.T) {
-			matcher := newPathWithVarsMatcher(path.pathToMatch)
-			request := &http.Request{
-				URL: &url.URL{
-					Path: path.pathRaw,
-				},
-			}
-
-			if !matcher.Match(request) {
-				t.Errorf("Unexpected not matched path ")
-			}
-		})
-	}
-}
-
-func BenchmarkPathVarsMatcher(b *testing.B) {
-	matcher := pathMatcher("/:string/:number/:string/:number/:string/:number/:string/:number/:string/:number")
-	request := &http.Request{
-		URL: &url.URL{
-			Path: "/dummy/1/dummy/1/dummy/1/dummy/1/dummy/1",
-		},
-	}
-
-	for n := 0; n < b.N; n++ {
-		matcher.Match(request)
-	}
-}
-
 func TestPathVarsMatcherFail(t *testing.T) {
 	matcher := pathMatcher("/api/:number")
 	request := &http.Request{
@@ -163,44 +247,20 @@ func TestPathVarsMatcherFail(t *testing.T) {
 	}
 }
 
-func TestMatcherFunc(t *testing.T) {
-	matcherFunc := func(*http.Request) bool {
-		return true
-	}
-
-	matcher := MatcherFunc(matcherFunc)
-
-	if !matcher.Match(&http.Request{}) {
-		t.Errorf("Unexpected not matched")
-	}
-}
-
-func TestMatcherFuncFail(t *testing.T) {
-	matcherFunc := func(*http.Request) bool {
-		return false
-	}
-
-	matcher := MatcherFunc(matcherFunc)
-
-	if matcher.Match(&http.Request{}) {
-		t.Errorf("Unexpected matched")
-	}
-}
-
 func TestHeaderMatcher(t *testing.T) {
 
 	tests := []struct {
-		title   string
-		m       func(pairs ...string) (Matcher, error)
-		request func() *http.Request
-		pairs   []string
+		title        string
+		buildMatcher func(pairs ...string) (Matcher, error)
+		buildRequest func() *http.Request
+		pairs        []string
 	}{
 		{
 			title: "Test header match",
-			m: func(pairs ...string) (Matcher, error) {
+			buildMatcher: func(pairs ...string) (Matcher, error) {
 				return newHeaderMatcher(pairs...)
 			},
-			request: func() *http.Request {
+			buildRequest: func() *http.Request {
 
 				request := &http.Request{
 					Header: http.Header{},
@@ -213,10 +273,10 @@ func TestHeaderMatcher(t *testing.T) {
 		},
 		{
 			title: "Test regex header match",
-			m: func(pairs ...string) (Matcher, error) {
+			buildMatcher: func(pairs ...string) (Matcher, error) {
 				return newHeaderRegexMatcher(pairs...)
 			},
-			request: func() *http.Request {
+			buildRequest: func() *http.Request {
 
 				request := &http.Request{
 					Header: http.Header{},
@@ -231,13 +291,13 @@ func TestHeaderMatcher(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("Test kind: %s", test.title), func(t *testing.T) {
-			matcher, err := test.m()
+			matcher, err := test.buildMatcher()
 
 			if err != nil {
 				t.Errorf("Unexpected error (%s)", err.Error())
 			}
 
-			request := test.request()
+			request := test.buildRequest()
 			if !matcher.Match(request) {
 				t.Errorf("Unexpected not matched (%v)", request.Header)
 			}
