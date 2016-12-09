@@ -106,3 +106,70 @@ func TestMatchMap(t *testing.T) {
 		t.Error("Unexpected non match")
 	}
 }
+
+func BenchmarkMatchMap(b *testing.B) {
+
+	tests := []struct {
+		title   string
+		compare map[string]comparison
+	}{
+		{
+			title: "MatchMap (String comparison): 1 Value",
+			compare: map[string]comparison{
+				"content-type": stringComparison("application/json"),
+			},
+		},
+		{
+			title: "MatchMap (String comparison): 2 Values",
+			compare: map[string]comparison{
+				"accept-encoding": stringComparison("gzip"),
+				"content-type":    stringComparison("application/json"),
+			},
+		},
+		{
+			title: "MatchMap (String comparison): 3 Values",
+			compare: map[string]comparison{
+				"accept-encoding": stringComparison("gzip"),
+				"content-type":    stringComparison("application/json"),
+				"accept":          stringComparison("text/plain"),
+			},
+		},
+	}
+
+	toCompare := map[string][]string{
+		"content-type": {
+			"applcation/json",
+		},
+		"accept-charset": {
+			"utf-8",
+		},
+		"accept-encoding": {
+			"gzip",
+			"deflate",
+		},
+		"accept-language": {
+			"en-US",
+		},
+		"cache-control": {
+			"no-cache",
+		},
+		"date": {
+			"Date: Tue, 15 Nov 1994 08:12:31 GMT",
+		},
+		"max-Forwards": {
+			"10",
+		},
+		"accept": {
+			"text/plain",
+			"text/html",
+		},
+	}
+
+	for _, test := range tests {
+		b.Run(test.title, func(b *testing.B) {
+			for n := 0; n < b.N; n++ {
+				matchMap(test.compare, toCompare, false)
+			}
+		})
+	}
+}

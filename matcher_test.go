@@ -364,17 +364,17 @@ func populateHeaderWithTestData(request *http.Request) {
 		"content-type": {
 			"applcation/json",
 		},
-		"accept-Charset": {
+		"accept-charset": {
 			"utf-8",
 		},
-		"accept-Encoding": {
+		"accept-encoding": {
 			"gzip",
 			"deflate",
 		},
-		"accept-Language": {
+		"accept-language": {
 			"en-US",
 		},
-		"cache-Control": {
+		"cache-control": {
 			"no-cache",
 		},
 		"date": {
@@ -393,5 +393,66 @@ func populateHeaderWithTestData(request *http.Request) {
 		for _, vv := range v {
 			request.Header.Add(k, vv)
 		}
+	}
+}
+
+func BenchmarkNewPathWithVarsMatcher(b *testing.B) {
+
+	tests := []struct {
+		title string
+		path  string
+	}{
+		{
+			title: "Benchmark: constructor of pathWithVarsMatcher (one var number value)",
+			path:  "/:number",
+		},
+		{
+			title: "Benchmark: constructor of pathWithVarsMatcher (two var number value)",
+			path:  "/:number/:numnber",
+		},
+		{
+			title: "Benchmark: constructor of pathWithVarsMatcher (three var number value)",
+			path:  "/:number/:number/:number",
+		},
+		{
+			title: "Benchmark: constructor of pathWithVarsMatcher (four var number value)",
+			path:  "/:number/:number/:number/:number",
+		},
+		{
+			title: "Benchmark: constructor of pathWithVarsMatcher (five var number value)",
+			path:  "/:number/:number/:number/:number/:number",
+		},
+		{
+			title: "Benchmark: constructor of pathWithVarsMatcher (one var string value)",
+			path:  "/:string",
+		},
+		{
+			title: "Benchmark: constructor of pathWithVarsMatcher (two var string value)",
+			path:  "/:string/:string",
+		},
+		{
+			title: "Benchmark: constructor of pathWithVarsMatcher (three var string value)",
+			path:  "/:string/:string/:string",
+		},
+		{
+			title: "Benchmark: constructor of pathWithVarsMatcher (four var string value)",
+			path:  "/:string/:string/:string/:string",
+		},
+		{
+			title: "Benchmark: constructor of pathWithVarsMatcher (five var string value)",
+			path:  "/:string/:string/:string/:string/:string",
+		},
+		{
+			title: "Benchmark: constructor of pathWithVarsMatcher (mixed var value)",
+			path:  "/:number/:string/:number/:string/:number/:number/:string/:number/:string/:number",
+		},
+	}
+
+	for _, test := range tests {
+		b.Run(test.title, func(b *testing.B) {
+			for n := 0; n < b.N; n++ {
+				newPathWithVarsMatcher(test.path)
+			}
+		})
 	}
 }
