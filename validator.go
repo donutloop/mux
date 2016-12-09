@@ -36,20 +36,33 @@ func (v MethodValidator) Validate(r RouteInterface) error {
 	return nil
 }
 
-//pathMatcherValidator validates the string against a method.
-type pathMatcherValidator struct{}
+//pathValidator check if a path is set and validates the value .
+type pathValidator struct{}
 
-func newPathMatcherValidator() pathMatcherValidator {
-	return pathMatcherValidator{}
+func newPathValidator() pathValidator {
+	return pathValidator{}
 }
 
-func (v pathMatcherValidator) Validate(r RouteInterface) error {
+func (v pathValidator) Validate(r RouteInterface) error {
 
+	foundPathMatcher := false
 	for _, m := range r.GetMatchers() {
 		if m.Rank() == rankPath {
-			return nil
+			foundPathMatcher = true
 		}
 	}
 
-	return NewMissingPathError()
+	if !foundPathMatcher {
+		return NewBadPathError("Patch matcher is missing")
+	}
+
+	if len(r.GetPath()) == 0 {
+		return NewBadPathError("Path is empty")
+	}
+
+	if r.GetPath()[0] != '/' {
+		return NewBadPathError("Path starts not with a /")
+	}
+
+	return nil
 }

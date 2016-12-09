@@ -55,7 +55,7 @@ type Route struct {
 }
 
 // NewRoute returns a new route instance.
-func newRoute(router *Router) RouteInterface {
+func NewRoute(router *Router) RouteInterface {
 	return &Route{
 		router:      router,
 		ms:          Matchers([]Matcher{}),
