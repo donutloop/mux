@@ -31,14 +31,14 @@ func NewBadMethodError(text string) error {
 	return &BadMethodError{text}
 }
 
-// MissingPathError creates error for bad method
-type MissingPathError struct {
+// BadPathError creates error for bad path
+type BadPathError struct {
 	s string
 }
 
-func (bme *MissingPathError) Error() string { return fmt.Sprint("Path matcher is missing") }
+func (bme *BadPathError) Error() string { return fmt.Sprintf("Path is invaild (%s)", bme.s) }
 
-// NewMissingPathError returns an error that formats as the given text.
-func NewMissingPathError() error {
-	return &MissingPathError{}
+// NewBadPathError returns an error that formats as the given text.
+func NewBadPathError(text string) error {
+	return &BadPathError{s: text}
 }

@@ -13,7 +13,7 @@ func NewRouter() *Router {
 		routes: map[string]routes{},
 		Validatoren: map[string]Validator{
 			"method": newMethodValidator(),
-			"path":   newPathMatcherValidator(),
+			"path":   newPathValidator(),
 		},
 	}
 }

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -493,6 +494,46 @@ func TestRouterWithMultiRoutes(t *testing.T) {
 
 			if content.String() != pathInfo.key {
 				t.Errorf("Path %s: Unexpected path key (Expected path key: %s, Actucal path key %s)", rawPath, pathInfo.key, content.String())
+			}
+		})
+	}
+}
+
+func TestRegisterRouteInvaildRoutes(t *testing.T) {
+
+	tests := []struct {
+		title  string
+		path   string
+		method string
+	}{
+		{
+			title:  "Path is empty",
+			path:   "",
+			method: http.MethodGet,
+		},
+		{
+			title:  "Path starts not with a /",
+			path:   "echo/",
+			method: http.MethodGet,
+		},
+		{
+			title:  "Method not vaild",
+			path:   "/echo/",
+			method: "GETT",
+		},
+	}
+
+	r := Classic()
+	testHandler := func(w http.ResponseWriter, r *http.Request) {}
+
+	for _, test := range tests {
+		t.Run(test.title, func(t *testing.T) {
+			route := r.NewRoute()
+			route.Path(test.path).Handler(http.HandlerFunc(testHandler))
+			r.RegisterRoute(test.method, route)
+
+			if err := route.GetError(); err == nil || !strings.Contains(err.Error(), test.title) {
+				t.Error("Unexpected vaild path")
 			}
 		})
 	}
