@@ -178,7 +178,7 @@ it's supports variables and regex in the routing pattern and matches against the
         r := mux.Classic()
         
         //URL: http://localhost:8080/user/update/1
-        r.Post("/user/update/:number", userHandler)
+        r.Put("/user/update/:number", userHandler)
 
     	errorHandler := func(errs []error) {
             for _ , err := range errs {
