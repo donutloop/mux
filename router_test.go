@@ -538,3 +538,16 @@ func TestRegisterRouteInvaildRoutes(t *testing.T) {
 		})
 	}
 }
+
+func TestListenAndServeFail(t *testing.T) {
+	router := Classic()
+	testHandler := func(w http.ResponseWriter, r *http.Request) {}
+	route := router.Get("/echo", testHandler)
+	route.SetError(errors.New("Test error"))
+	router.ListenAndServe(":8080", func(errs []error) {
+
+		if 0 == len(errs) {
+			t.Errorf("Route has no error")
+		}
+	})
+}
