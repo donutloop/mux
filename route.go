@@ -181,10 +181,11 @@ func (r *Route) Path(path string) RouteInterface {
 	switch {
 	case containsRegex(path):
 		matcher = newPathRegexMatcher(path)
+		r.extractVarsIndexies("#", path, "var")
 		r.kind = kindRegexPath
 	case containsVars(path):
 		matcher = newPathWithVarsMatcher(path)
-		r.extractVarsIndexies(":", path)
+		r.extractVarsIndexies(":", path, "")
 		r.kind = kindVarsPath
 	default:
 		matcher = pathMatcher(path)
@@ -202,7 +203,7 @@ func (r *Route) GetPath() string {
 	return r.path
 }
 
-func (r *Route) extractVarsIndexies(prefix string, path string) {
+func (r *Route) extractVarsIndexies(prefix string, path string, name string) {
 
 	urlSeg := strings.Split(path, "/")
 
@@ -210,6 +211,10 @@ func (r *Route) extractVarsIndexies(prefix string, path string) {
 	var count int
 	for k, v := range urlSeg {
 		if strings.HasPrefix(v, prefix) {
+
+			if name != "" {
+				v = name
+			}
 
 			if _, found := indexies[v]; !found {
 				indexies[v] = k

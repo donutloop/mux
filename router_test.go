@@ -164,6 +164,18 @@ func TestPath(t *testing.T) {
 		},
 		{
 			title:      "(GET) Path route with vars",
+			path:       "/article/B00KY1U7GM",
+			method:     http.MethodGet,
+			statusCode: http.StatusOK,
+			kind:       "HandlerFunc",
+			vars:       map[string]string{"var": "B00KY1U7GM"},
+			route: func(r *Router, path string, method string, handler func(w http.ResponseWriter, r *http.Request)) {
+				r.CaseSensitiveURL = true
+				r.HandleFunc(method, "/article/#([a-zA-Z0-9]{10,})", handler)
+			},
+		},
+		{
+			title:      "(GET) Path route with vars",
 			path:       "/api/user/32/article/golang",
 			method:     http.MethodGet,
 			statusCode: http.StatusOK,
