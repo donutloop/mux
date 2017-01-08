@@ -34,12 +34,18 @@ func CurrentRoute(r *http.Request) RouteInterface {
 	return nil
 }
 
-func setQueries(r *http.Request) *http.Request {
-	queries, _ := extractQueries(r)
+func AddQueries(r *http.Request) *http.Request {
+
+	queries, err := extractQueries(r)
+
+	if err != nil || 0 == queries.Count() {
+		return r
+	}
+
 	return contextSet(r, queriesKey, queries)
 }
 
-func setCurrentRoute(r *http.Request, val interface{}) *http.Request {
+func AddCurrentRoute(r *http.Request, val interface{}) *http.Request {
 	return contextSet(r, routeKey, val)
 }
 
@@ -51,7 +57,7 @@ func GetVars(r *http.Request) Vars {
 	return nil
 }
 
-func setVars(r *http.Request, val interface{}) *http.Request {
+func AddVars(r *http.Request, val interface{}) *http.Request {
 	return contextSet(r, varsKey, val)
 }
 
@@ -82,6 +88,11 @@ func (q queries) GetAll() map[string][]string {
 	return q
 }
 
+// Count returns count of the current *http.Request queries
+func (q queries) Count() int {
+	return len(q)
+}
+
 func extractQueries(req *http.Request) (queries, error) {
 
 	queriesRaw, err := url.ParseQuery(req.URL.RawQuery)
@@ -91,6 +102,11 @@ func extractQueries(req *http.Request) (queries, error) {
 	}
 
 	queries := queries(map[string][]string{})
+
+	if 0 == len(queriesRaw) {
+		return queries, nil
+	}
+
 	for k, v := range queriesRaw {
 		for _, item := range v {
 			values := strings.Split(item, ",")

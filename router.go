@@ -103,11 +103,11 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	req = setCurrentRoute(req, route)
-	req = setQueries(req)
+	req = AddCurrentRoute(req, route)
+	req = AddQueries(req)
 
 	if route.HasVars() {
-		req = setVars(req, route.ExtractVars(req))
+		req = AddVars(req, route.ExtractVars(req))
 	}
 
 	if !route.HasHandler() {
