@@ -80,7 +80,7 @@ func (q queries) Get(key string) []string {
 	if value, found := q[key]; found {
 		return value
 	}
-	return []string{}
+	return make([]string, 0)
 }
 
 // Get returns all queries of the current *http.Request queries
