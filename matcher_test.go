@@ -14,7 +14,7 @@ func TestMatcherFunc(t *testing.T) {
 
 	matcher := MatcherFunc(matcherFunc)
 
-	if !matcher.Match(&http.Request{}) {
+	if !matcher.Match(new(http.Request)) {
 		t.Errorf("Unexpected not matched")
 	}
 }
@@ -26,7 +26,7 @@ func TestMatcherFuncFail(t *testing.T) {
 
 	matcher := MatcherFunc(matcherFunc)
 
-	if matcher.Match(&http.Request{}) {
+	if matcher.Match(new(http.Request)) {
 		t.Errorf("Unexpected matched")
 	}
 }
@@ -35,7 +35,7 @@ func TestSchemeMatcher(t *testing.T) {
 	schemes := []string{"http", "https"}
 	matcher := newSchemeMatcher("https", "HTTP")
 	request := &http.Request{
-		URL: &url.URL{},
+		URL: new(url.URL),
 	}
 
 	for _, v := range schemes {
@@ -63,7 +63,7 @@ func TestSchemeMatcherFail(t *testing.T) {
 	schemes := []string{"http", "https"}
 	matcher := newSchemeMatcher("httpss")
 	request := &http.Request{
-		URL: &url.URL{},
+		URL: new(url.URL),
 	}
 
 	for _, v := range schemes {

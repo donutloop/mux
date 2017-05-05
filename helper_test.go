@@ -40,7 +40,6 @@ func TestConvertStringsToMapString(t *testing.T) {
 	pairs := []string{"content-type", "application/json"}
 
 	m, _ := convertStringsToMapString(isEvenPairs, pairs...)
-
 	if value, ok := m["content-type"]; !ok || !value.compare("application/json") {
 		t.Errorf("Unexpected pair (%s)", string(value.(stringComparison)))
 	}
@@ -54,7 +53,6 @@ func TestConvertStringsToMapRegex(t *testing.T) {
 	pairs := []string{"content-type", "application/json"}
 
 	m, _ := convertStringsToMapRegex(isEvenPairs, pairs...)
-
 	if value, ok := m["content-type"]; !ok || !value.compare("application/json") {
 		t.Errorf("Unexpected pair (%s)", value.(regexComparsion))
 	}
@@ -81,8 +79,7 @@ func TestConvertStringsToMapError(t *testing.T) {
 		return 3, errors.New("Something went wrong")
 	}
 
-	pairs := []string{}
-
+	pairs := make([]string,0)
 	if _, err := convertStringsToMapString(isEvenPairs, pairs...); err == nil {
 		t.Error("Unexpected nil error")
 	}
@@ -101,7 +98,6 @@ func TestMatchMap(t *testing.T) {
 	}
 
 	ok := matchMap(compare, toCompare, false)
-
 	if !ok {
 		t.Error("Unexpected non match")
 	}

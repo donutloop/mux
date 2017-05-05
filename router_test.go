@@ -399,7 +399,7 @@ func TestHasErrors(t *testing.T) {
 	}
 
 	r := &Router{}
-	r.routes = map[string]routes{}
+	r.routes = make(map[string]routes)
 	r.routes[http.MethodGet] = append(r.routes[http.MethodGet], routeA, routeB)
 
 	if ok, errors := r.HasErrors(); !ok || 0 == len(errors) {
@@ -412,7 +412,7 @@ func TestSortsRoutes(t *testing.T) {
 	kinds := []int{0, 2, 1, 2, 1, 2, 2, 1, 0}
 
 	r := &Router{}
-	r.routes = map[string]routes{}
+	r.routes = make(map[string]routes)
 
 	for _, v := range kinds {
 		route := &Route{

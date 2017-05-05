@@ -10,7 +10,7 @@ import (
 // NewRouter returns a new router instance.
 func NewRouter() *Router {
 	return &Router{
-		routes: map[string]routes{},
+		routes: make(map[string]routes),
 		Validatoren: map[string]Validator{
 			"method": newMethodValidator(),
 			"path":   newPathValidator(),
@@ -155,7 +155,7 @@ func (r *Router) RegisterRoute(method string, route RouteInterface) RouteInterfa
 
 	route.SetMethodName(method)
 
-	for _, validatorKey := range []string{"method", "path"} {
+	for _, validatorKey := range [2]string{"method", "path"} {
 		if validator, found := r.Validatoren[validatorKey]; found {
 
 			err := validator.Validate(route)
@@ -225,7 +225,7 @@ func (r *Router) Head(path string, handlerFunc func(http.ResponseWriter, *http.R
 // on incoming connections.
 func (r *Router) ListenAndServe(port string, callback func(errs []error)) {
 	var ok bool
-	errs := []error{}
+	errs := make([]error, 0)
 
 	if ok, errs = r.HasErrors(); ok {
 		callback(errs)
@@ -244,7 +244,7 @@ func (r *Router) ListenAndServe(port string, callback func(errs []error)) {
 
 // HasErrors checks if any errors exists
 func (r *Router) HasErrors() (bool, []error) {
-	errors := []error{}
+	errors := make([]error, 0)
 	hasError := false
 
 	for _, v := range r.routes {
