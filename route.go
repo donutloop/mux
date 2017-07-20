@@ -59,7 +59,7 @@ func NewRoute(router *Router) RouteInterface {
 	return &Route{
 		router:      router,
 		ms:          Matchers([]Matcher{}),
-		varIndexies: map[string]int{},
+		varIndexies: make(map[string]int),
 	}
 }
 
@@ -255,7 +255,6 @@ func (r *Route) ExtractVars(req *http.Request) Vars {
 	urlSeg := strings.Split(req.URL.Path, "/")
 
 	vars := Vars(map[string]string{})
-
 	for k, v := range r.varIndexies {
 		vars[k] = urlSeg[v]
 	}
@@ -293,7 +292,6 @@ func (r *Route) Headers(pairs ...string) RouteInterface {
 	}
 
 	matcher, err := newHeaderMatcher(pairs...)
-
 	if err != nil {
 		r.err = err
 	}
@@ -327,7 +325,6 @@ func (r *Route) HeadersRegex(pairs ...string) RouteInterface {
 	}
 
 	matcher, err := newHeaderRegexMatcher(pairs...)
-
 	if err != nil {
 		r.err = err
 	}

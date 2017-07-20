@@ -79,14 +79,13 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if !r.SkipClean {
 
 		path := req.URL.Path
-
 		if r.UseEncodedPath {
 			path = req.URL.EscapedPath()
 		}
 
 		// Clean path to canonical form and redirect.
-		if p := cleanPath(path); p != path {
-			w.Header().Set("Location", p)
+		if cleanedPath := cleanPath(path); cleanedPath != path {
+			w.Header().Set("Location", cleanedPath)
 			w.WriteHeader(http.StatusMovedPermanently)
 			return
 		}
@@ -97,7 +96,6 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	route := r.triggerMatching(req)
-
 	if route == nil {
 		r.notFoundHandler().ServeHTTP(w, req)
 		return
@@ -224,10 +222,9 @@ func (r *Router) Head(path string, handlerFunc func(http.ResponseWriter, *http.R
 // and then calls Serve with handler to handle requests
 // on incoming connections.
 func (r *Router) ListenAndServe(port string, callback func(errs []error)) {
-	var ok bool
-	errs := make([]error, 0)
 
-	if ok, errs = r.HasErrors(); ok {
+	ok, errs := r.HasErrors()
+	if  ok {
 		callback(errs)
 		return
 	}
@@ -238,8 +235,6 @@ func (r *Router) ListenAndServe(port string, callback func(errs []error)) {
 	if 0 != len(errs) {
 		callback(errs)
 	}
-
-	return
 }
 
 // HasErrors checks if any errors exists
